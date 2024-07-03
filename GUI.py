@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import *
 from algorithm import Algorithm
 import numpy as np
 
@@ -13,6 +13,7 @@ class GUI:
     def __init__(self) -> None:
         self.root = tk.Tk()
         self.root.title("GUI")
+        self.root.iconbitmap('icon.ico')
         self.level_option_list = ["Level 1", "Level 2", "Level 3", "Level 4"]
         self.level_option = tk.StringVar()
         self.algo_option = tk.IntVar()
@@ -115,12 +116,12 @@ class DeliveryMap:
                 if self.map[y][x] == '0':
                     color = "white"
                 elif self.map[y][x] == '-1':
-                    color = "royalblue"
+                    color = "steelblue4"
                 elif self.map[y][x][0] == 'S':
-                    color = "lawngreen"
+                    color = "darkseagreen2"
                     self.start = (x, y)
                 elif self.map[y][x][0] == 'G':
-                    color = "salmon"
+                    color = "coral1"
                     self.goal = (x, y)
 
                 x1 = x * self.cell_size + self.x_offset
@@ -132,9 +133,28 @@ class DeliveryMap:
                 if self.map[y][x] != '0' and self.map[y][x] != '-1':
                     self.canvas.create_text(x1 + 20, y1 + 20, text = self.map[y][x], fill = "black", font = "Times 12")  
 
-        self.canvas.place(x = X_START + 500, y = Y_START, anchor="nw")
+        self.canvas.place(x = X_START + 350, y = Y_START, anchor="nw")
 
-    def color_cell(self, cell):
-        self.canvas.itemconfig(self.rectangles[cell], fill="gray")
+    def color_cell(self, cell, goal):
+        if cell != goal:
+            self.canvas.itemconfig(self.rectangles[cell], fill="seashell3")
+        else:
+            self.canvas.itemconfig(self.rectangles[cell], fill="gold")
+
         self.root.update()
         self.root.after(100)
+
+    def draw_path(self, path):
+        for i in range(0, len(path) - 1):
+            y1, x1 = path[i]
+            y2, x2 = path[i + 1]
+            x1 = x1 * self.cell_size + self.x_offset + 20
+            y1 = y1 * self.cell_size + self.y_offset + 20
+            x2 = x2 * self.cell_size + self.x_offset + 20
+            y2 = y2 * self.cell_size + self.y_offset + 20
+        
+            self.line = self.canvas.create_line(x1, y1, x2, y2, fill="darkseagreen1", width=4)
+            self.root.update()
+            self.root.after(700)
+
+            

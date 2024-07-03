@@ -34,6 +34,9 @@ class Algorithm:
                 if (0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols and
                     not visited[neighbor] and maze[neighbor] in {'0', 'G'}):
 
+                    # Color neighbors
+                    self.ui_map.color_cell(neighbor, goal)
+
                     if neighbor == goal:
                         path = []
                         path.append(neighbor)
@@ -43,14 +46,13 @@ class Algorithm:
                             current = tuple(parent[current])
                         path.append(start)
                         path.reverse()
+
+                        # Draw path
+                        self.ui_map.root.after(10000, self.ui_map.draw_path(path))
                         return path
             
                     frontier.append(neighbor)
                     visited[neighbor] = True
                     parent[neighbor] = current
-
-                    # Color neighbors
-                    self.ui_map.color_cell(neighbor)
-                    
-                    
+                                 
         return "There has no path to get to the goal"  # No path found
