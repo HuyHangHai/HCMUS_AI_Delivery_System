@@ -48,7 +48,8 @@ class Algorithm:
                         path.reverse()
 
                         # Draw path
-                        self.ui_map.root.after(10000, self.ui_map.draw_path(path))
+                        self.ui_map.root.after(3000, self.ui_map.draw_path(path))
+
                         return path
             
                     frontier.append(neighbor)

@@ -1,11 +1,12 @@
 import tkinter as tk
 from tkinter import *
 from algorithm import Algorithm
+from PIL import Image,ImageTk
 import numpy as np
 
-X_START = 250
-Y_START = 60
-MAP_WIDTH = 1100
+X_START = 150
+Y_START = 100
+MAP_WIDTH = 1000
 MAP_HEIGHT = 900
 
 
@@ -14,6 +15,7 @@ class GUI:
         self.root = tk.Tk()
         self.root.title("GUI")
         self.root.iconbitmap('icon.ico')
+        self.root.geometry("1550x900")
         self.level_option_list = ["Level 1", "Level 2", "Level 3", "Level 4"]
         self.level_option = tk.StringVar()
         self.algo_option = tk.IntVar()
@@ -24,7 +26,7 @@ class GUI:
         algorithm = Algorithm(deliveryMap)
 
         if level_option == "Level 1" and algo_option == 2:
-            deliveryMap.root.after(1000, algorithm.bfs_level1())
+            deliveryMap.root.after(700, algorithm.bfs_level1())
 
 
 
@@ -105,6 +107,7 @@ class DeliveryMap:
         self.y_offset = (MAP_HEIGHT - self.map_height) // 2
 
         self.rectangles = {}
+        self.img = PhotoImage(file="robot.png")
 
         self.create_map()
 
@@ -133,7 +136,7 @@ class DeliveryMap:
                 if self.map[y][x] != '0' and self.map[y][x] != '-1':
                     self.canvas.create_text(x1 + 20, y1 + 20, text = self.map[y][x], fill = "black", font = "Times 12")  
 
-        self.canvas.place(x = X_START + 350, y = Y_START, anchor="nw")
+        self.canvas.place(x = X_START + 350, y = 0, anchor="nw")
 
     def color_cell(self, cell, goal):
         if cell != goal:
@@ -141,11 +144,14 @@ class DeliveryMap:
         else:
             self.canvas.itemconfig(self.rectangles[cell], fill="gold")
 
+        self.pause(100)
+    
+    def pause(self, time):
         self.root.update()
-        self.root.after(100)
+        self.root.after(time)
 
-    def draw_path(self, path):
-        for i in range(0, len(path) - 1):
+    def draw_path(self, path : list):
+        for i in range(len(path) - 1):
             y1, x1 = path[i]
             y2, x2 = path[i + 1]
             x1 = x1 * self.cell_size + self.x_offset + 20
@@ -154,7 +160,13 @@ class DeliveryMap:
             y2 = y2 * self.cell_size + self.y_offset + 20
         
             self.line = self.canvas.create_line(x1, y1, x2, y2, fill="darkseagreen1", width=4)
-            self.root.update()
-            self.root.after(700)
+            if i == 0:
+                self.ai_img = self.canvas.create_image(x1, y1, image=self.img)             
+                self.pause(200)
+                self.canvas.coords(self.ai_img, x2, y2)
+            else:
+                self.canvas.coords(self.ai_img, x2, y2)
+
+            self.pause(200)
 
             
