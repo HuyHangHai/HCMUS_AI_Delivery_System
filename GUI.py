@@ -19,14 +19,17 @@ class GUI:
         self.level_option_list = ["Level 1", "Level 2", "Level 3", "Level 4"]
         self.level_option = tk.StringVar()
         self.algo_option = tk.IntVar()
+        self.root.img = tk.PhotoImage(file="robot.png")
 
     def run(self):
         level_option, algo_option = self.level_option.get(), self.algo_option.get()
         deliveryMap = DeliveryMap(self.root)
         algorithm = Algorithm(deliveryMap)
 
-        if level_option == "Level 1" and algo_option == 2:
-            deliveryMap.root.after(700, algorithm.bfs_level1())
+        if level_option == "Level 1" and algo_option == 1:
+            path = algorithm.dfs_level1()
+        elif level_option == "Level 1" and algo_option == 2:
+            path = algorithm.bfs_level1()
 
 
 
@@ -107,7 +110,7 @@ class DeliveryMap:
         self.y_offset = (MAP_HEIGHT - self.map_height) // 2
 
         self.rectangles = {}
-        self.img = PhotoImage(file="robot.png")
+        
 
         self.create_map()
 
@@ -146,9 +149,9 @@ class DeliveryMap:
 
         self.pause(100)
     
-    def pause(self, time):
-        self.root.update()
-        self.root.after(time)
+    def pause(self, duration):
+        self.canvas.update()
+        self.canvas.after(duration)
 
     def draw_path(self, path : list):
         for i in range(len(path) - 1):
@@ -161,12 +164,12 @@ class DeliveryMap:
         
             self.line = self.canvas.create_line(x1, y1, x2, y2, fill="darkseagreen1", width=4)
             if i == 0:
-                self.ai_img = self.canvas.create_image(x1, y1, image=self.img)             
+                self.ai_img = self.canvas.create_image(x1, y1, image=self.root.img)             
                 self.pause(200)
-                self.canvas.coords(self.ai_img, x2, y2)
+                self.canvas.coords(self.ai_img, x2, y2)   
             else:
                 self.canvas.coords(self.ai_img, x2, y2)
-
             self.pause(200)
+
 
             
