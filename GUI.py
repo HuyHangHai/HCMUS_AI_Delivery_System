@@ -141,10 +141,10 @@ class DeliveryMap:
 
         self.canvas.place(x = X_START + 350, y = 0, anchor="nw")
 
-    def color_cell(self, cell, goal):
-        if cell != goal:
+    def color_cell(self, cell, start, goal):
+        if cell != goal and cell != start:
             self.canvas.itemconfig(self.rectangles[cell], fill="seashell3")
-        else:
+        elif cell == goal:
             self.canvas.itemconfig(self.rectangles[cell], fill="gold")
 
         self.pause(100)

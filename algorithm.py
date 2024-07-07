@@ -36,7 +36,7 @@ class Algorithm:
                     not visited[neighbor] and maze[neighbor] in {'0', 'G'}):
 
                     # Color neighbors
-                    self.ui_map.color_cell(neighbor, goal)
+                    self.ui_map.color_cell(neighbor, start, goal)
 
                     if neighbor == goal:
                         path.append(neighbor)
@@ -55,6 +55,8 @@ class Algorithm:
                     frontier.append(neighbor)
                     visited[neighbor] = True
                     parent[neighbor] = current
+            
+        return path
     
     def dfs_level1(self) -> list:
         start_location = np.where(self.ui_map.map == 'S')
@@ -63,40 +65,42 @@ class Algorithm:
         start = (start_location[0][0], start_location[1][0])
         goal = (goal_location[0][0], goal_location[1][0])
 
-        stack = [start]
-        visited = set()
+        frontier = [start]
+        visited = set(start)
         parent = {start: None}
+        path = []
 
-        while stack:
-            current = stack.pop()
-            if current == goal:
-                break
+        while frontier:
+            current = frontier.pop()
 
-            visited.add(current)
+            # Color neighbors
+            self.ui_map.color_cell(current, start, goal)
+
+            if current == goal:  
+                while current is not None:
+                    path.append(current)
+                    current = parent[current]
+                path.reverse()
+
+                # Draw path
+                self.ui_map.root.after(3000, self.ui_map.draw_path(path))
+              
+                return path
+
+            visited.add(current)     
             x, y = current
 
             directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-            for dx, dy in directions:
-                neighbor = (x + dx, y + dy)
+            for i in range(len(directions) - 1, -1, -1):
+                neighbor = (x + directions[i][0], y + directions[i][1])
                 if neighbor in visited:
                     continue
          
                 if (0 <= neighbor[0] < len(self.ui_map.map) and 0 <= neighbor[1] < len(self.ui_map.map[0])
                     and self.ui_map.map[neighbor] in {'0', 'G'}):
                     
-                    stack.append(neighbor)
-                    parent[neighbor] = current
-
-                    # Color neighbors
-                    #self.ui_map.color_cell(neighbor, goal)
-
-        # Reconstruct the path from end to start
-        current = goal
-        path = []
-        while current is not None:
-            path.append(current)
-            current = parent[current]
-        path.reverse()
+                    frontier.append(neighbor)
+                    parent[neighbor] = current        
 
         return path
                     
