@@ -134,7 +134,7 @@ class Algorithm:
                 
                 if neighbor not in visited:
                     new_path = path + [neighbor]
-                    heuristic = float(abs(int(neighbor[0]) - int(goal[0])) + abs(int(neighbor[1]) - int(goal[1])))
+                    heuristic = abs(int(neighbor[0]) - int(goal[0])) + abs(int(neighbor[1]) - int(goal[1]))
                     frontier.put((heuristic, neighbor, new_path))
                     visited.add(neighbor)
                     
