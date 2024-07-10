@@ -132,9 +132,12 @@ class Algorithm:
                 
                 neighbor = (current[0] + dx, current[1] + dy)
                 
-                if neighbor not in visited:
+                if neighbor not in visited and 0 <= neighbor[0] < len(self.ui_map.map) and 0 <= neighbor[1] < len(self.ui_map.map[0]) and self.ui_map.map[neighbor[0]][neighbor[1]] != '-1':
                     new_path = path + [neighbor]
+                    
+                    # Manhattan distance from neighbor to goal
                     heuristic = abs(int(neighbor[0]) - int(goal[0])) + abs(int(neighbor[1]) - int(goal[1]))
+                    
                     frontier.put((heuristic, neighbor, new_path))
                     visited.add(neighbor)
                     
