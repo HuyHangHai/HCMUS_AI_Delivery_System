@@ -30,6 +30,8 @@ class GUI:
             path = algorithm.dfs_level1()
         elif level_option == "Level 1" and algo_option == 2:
             path = algorithm.bfs_level1()
+        elif level_option == "Level 1" and algo_option == 4:
+            path = algorithm.gbfs_level1()
 
 
 

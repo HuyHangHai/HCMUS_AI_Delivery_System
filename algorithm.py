@@ -103,5 +103,39 @@ class Algorithm:
                     parent[neighbor] = current        
 
         return path
-                    
+    
+    def gbfs_level1(self) -> list:
+        
+        from queue import PriorityQueue
+        
+        start_location = np.where(self.ui_map.map == 'S')
+        goal_location = np.where(self.ui_map.map == 'G')
 
+        start = (start_location[0][0], start_location[1][0])
+        goal = (goal_location[0][0], goal_location[1][0])
+        
+        visited = set()
+        frontier = PriorityQueue()
+        frontier.put((0,start,[start]))
+        
+        while frontier:
+            _, current, path=frontier.get()
+                       
+            if current == goal:
+                self.ui_map.root.after(3000, self.ui_map.draw_path(path))
+                return path
+            
+            self.ui_map.color_cell(current, start, goal)
+            visited.add(current)
+            
+            for dx, dy in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+                
+                neighbor = (current[0] + dx, current[1] + dy)
+                
+                if neighbor not in visited:
+                    new_path = path + [neighbor]
+                    heuristic = float(abs(int(neighbor[0]) - int(goal[0])) + abs(int(neighbor[1]) - int(goal[1])))
+                    frontier.put((heuristic, neighbor, new_path))
+                    visited.add(neighbor)
+                    
+        return None
