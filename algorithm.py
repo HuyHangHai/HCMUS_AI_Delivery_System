@@ -120,12 +120,14 @@ class Algorithm:
         
         while frontier:
             _, current, path=frontier.get()
+
+            self.ui_map.color_cell(current, start, goal)
                        
             if current == goal:
                 self.ui_map.root.after(3000, self.ui_map.draw_path(path))
                 return path
             
-            self.ui_map.color_cell(current, start, goal)
+            
             visited.add(current)
             
             for dx, dy in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
