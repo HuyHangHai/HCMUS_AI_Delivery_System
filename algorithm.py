@@ -198,5 +198,5 @@ class Algorithm:
                     frontier.put((current_cost + int(maze[neighbor]), neighbor))
                     visited[neighbor] = True
                     parent[neighbor] = current
-        
+                    
         return path
