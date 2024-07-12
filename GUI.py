@@ -30,6 +30,8 @@ class GUI:
             path = algorithm.dfs_level1()
         elif level_option == "Level 1" and algo_option == 2:
             path = algorithm.bfs_level1()
+        elif level_option == "Level 1" and algo_option == 3:
+            path = algorithm.ucs_level1() 
         elif level_option == "Level 1" and algo_option == 4:
             path = algorithm.gbfs_level1()
 
@@ -97,11 +99,11 @@ class DeliveryMap:
         self.canvas = tk.Canvas(root, width = MAP_WIDTH, height = MAP_HEIGHT)
         self.map = np.array([
             ['0', '0', '0', '0', '0', '0'],
-            ['S', '-1', '0', '0', '0', '0'],
+            ['S', '0', '0', '0', '0', '0'],
+            ['-1', '0', '0', '0', '-1', '0'],
             ['0', '0', '0', '0', '0', '0'],
-            ['0', '0', '0', '0', '0', '0'],
-            ['0', '0', '0', '0', '0', '0'],
-            ['0', '0', '0', '0', 'G', '0']
+            ['0', '0', '-1', '-1', '0', '0'],
+            ['0', '0', '0', '-1', 'G', '0']
         ])
 
         # Calculate to center the delivery map
