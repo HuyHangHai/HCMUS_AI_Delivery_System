@@ -34,6 +34,8 @@ class GUI:
             path = algorithm.ucs_level1() 
         elif level_option == "Level 1" and algo_option == 4:
             path = algorithm.gbfs_level1()
+        elif level_option == "Level 1" and algo_option == 5:
+            path = algorithm.a_star_level1()
 
 
 
