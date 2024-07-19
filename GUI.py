@@ -34,6 +34,8 @@ class GUI:
             path = algorithm.ucs_level1() 
         elif level_option == "Level 1" and algo_option == 4:
             path = algorithm.gbfs_level1()
+        elif level_option == "Level 1" and algo_option == 5:
+            path = algorithm.a_star_level1()
 
 
 
@@ -97,14 +99,7 @@ class DeliveryMap:
     def __init__(self, root) -> None:
         self.root = root
         self.canvas = tk.Canvas(root, width = MAP_WIDTH, height = MAP_HEIGHT)
-        self.map = np.array([
-            ['0', '0', '0', '0', '0', '0'],
-            ['S', '0', '0', '0', '0', '0'],
-            ['-1', '0', '0', '0', '-1', '0'],
-            ['0', '0', '0', '0', '0', '0'],
-            ['0', '0', '-1', '-1', '0', '0'],
-            ['0', '0', '0', '-1', 'G', '0']
-        ])
+        self.map, self.t, self.f = readFile("input.txt")
 
         # Calculate to center the delivery map
         self.cell_size = 40
@@ -176,4 +171,12 @@ class DeliveryMap:
             self.pause(200)
 
 
-            
+def readFile(filename):
+    with open(filename, "r") as file:
+        data = file.readlines()
+        n, m, t, f = map(int, data[0].strip().split())
+        maze = np.empty(shape=(n, m), dtype=object)
+        for i in range(n):
+            maze[i] = data[i + 1].strip().split()
+
+    return maze, t, f       
