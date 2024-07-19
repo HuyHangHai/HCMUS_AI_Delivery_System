@@ -1,13 +1,14 @@
 import tkinter as tk
 from tkinter import *
+from tkinter import ttk
 from algorithm import Algorithm
-from PIL import Image,ImageTk
 import numpy as np
 
 X_START = 150
 Y_START = 100
 MAP_WIDTH = 1000
 MAP_HEIGHT = 900
+
 
 
 class GUI:
@@ -17,6 +18,7 @@ class GUI:
         self.root.iconbitmap('icon.ico')
         self.root.geometry("1550x900")
         self.level_option_list = ["Level 1", "Level 2", "Level 3", "Level 4"]
+        self.widgets = []
         self.level_option = tk.StringVar()
         self.algo_option = tk.IntVar()
         self.root.img = tk.PhotoImage(file="robot.png")
@@ -36,8 +38,38 @@ class GUI:
             path = algorithm.gbfs_level1()
         elif level_option == "Level 1" and algo_option == 5:
             path = algorithm.a_star_level1()
+        elif level_option == "Level 2" and algo_option == 3:
+            path = algorithm.ucs_level2(deliveryMap.t) 
 
+    def level_option_changed(self, *args):
+        for widget in self.widgets:
+            widget.place_forget()
+        self.widgets.clear()
 
+        if self.level_option.get() == "Level 1":
+            dfs_button = ttk.Radiobutton(self.root, text = "Depth-First Search", variable = self.algo_option, value = 1)
+            dfs_button.place(x = X_START - 40, y = Y_START + 300, anchor="nw")
+            self.widgets.append(dfs_button)
+
+            bfs_button = ttk.Radiobutton(self.root, text = "Breadth-First Search", variable = self.algo_option, value = 2)
+            bfs_button.place(x = X_START + 160, y = Y_START + 300, anchor="nw")
+            self.widgets.append(bfs_button)
+
+            ucs_button = ttk.Radiobutton(self.root, text = "Uniform-Cost Search", variable = self.algo_option, value = 3)
+            ucs_button.place(x = X_START - 40, y = Y_START + 360, anchor="nw")
+            self.widgets.append(ucs_button)
+
+            gbfs_button = ttk.Radiobutton(self.root, text = "Greedy Best First Search", variable = self.algo_option, value = 4)
+            gbfs_button.place(x = X_START + 160, y = Y_START + 360, anchor="nw")
+            self.widgets.append(gbfs_button)
+
+            a_button = ttk.Radiobutton(self.root, text = "A* Search", variable = self.algo_option, value = 5)
+            a_button.place(x = X_START + 80, y = Y_START + 420, anchor="nw")
+            self.widgets.append(a_button)
+        elif self.level_option.get() == "Level 2":
+            ucs_button = ttk.Radiobutton(self.root, text = "Uniform-Cost Search", variable = self.algo_option, value = 3)
+            ucs_button.place(x = X_START - 40, y = Y_START + 300, anchor="nw")
+            self.widgets.append(ucs_button)
 
     def create(self):
         schoolName = tk.Label(self.root, text="University of Science - VNU-HCM", font=("Times New Roman", 13))
@@ -58,23 +90,28 @@ class GUI:
         level_info.place(x = X_START - 40, y = Y_START + 200, anchor="nw")
         
         self.level_option.set(self.level_option_list[0])
-        self.level_menu = tk.OptionMenu(self.root, self.level_option, *self.level_option_list)
-        self.level_menu.place(x = X_START + 120, y = Y_START + 200, anchor="nw")     
+        self.level_menu = tk.OptionMenu(self.root, self.level_option, *self.level_option_list, command=self.level_option_changed)
+        self.level_menu.place(x = X_START + 120, y = Y_START + 200, anchor="nw") 
 
-        dfs_button = tk.Radiobutton(self.root, text = "Depth-First Search", variable = self.algo_option, value = 1, font=("Arial", 10))
+        dfs_button = ttk.Radiobutton(self.root, text = "Depth-First Search", variable = self.algo_option, value = 1)
         dfs_button.place(x = X_START - 40, y = Y_START + 300, anchor="nw")
+        self.widgets.append(dfs_button)
 
-        bfs_button = tk.Radiobutton(self.root, text = "Breadth-First Search", variable = self.algo_option, value = 2, font=("Arial", 10))
+        bfs_button = ttk.Radiobutton(self.root, text = "Breadth-First Search", variable = self.algo_option, value = 2)
         bfs_button.place(x = X_START + 160, y = Y_START + 300, anchor="nw")
+        self.widgets.append(bfs_button)
 
-        ucs_button = tk.Radiobutton(self.root, text = "Uniform-Cost Search", variable = self.algo_option, value = 3, font=("Arial", 10))
+        ucs_button = ttk.Radiobutton(self.root, text = "Uniform-Cost Search", variable = self.algo_option, value = 3)
         ucs_button.place(x = X_START - 40, y = Y_START + 360, anchor="nw")
+        self.widgets.append(ucs_button)
 
-        gbfs_button = tk.Radiobutton(self.root, text = "Greedy Best First Search", variable = self.algo_option, value = 4, font=("Arial", 10))
+        gbfs_button = ttk.Radiobutton(self.root, text = "Greedy Best First Search", variable = self.algo_option, value = 4)
         gbfs_button.place(x = X_START + 160, y = Y_START + 360, anchor="nw")
+        self.widgets.append(gbfs_button)
 
-        a_button = tk.Radiobutton(self.root, text = "A* Search", variable = self.algo_option, value = 5, font=("Arial", 10))
+        a_button = ttk.Radiobutton(self.root, text = "A* Search", variable = self.algo_option, value = 5)
         a_button.place(x = X_START + 80, y = Y_START + 420, anchor="nw")
+        self.widgets.append(a_button) 
 
         button = tk.Button( self.root, text="Run",
                             activebackground="blue", 
@@ -110,11 +147,9 @@ class DeliveryMap:
 
         self.rectangles = {}
         
-
         self.create_map()
 
-    def create_map(self):
-        
+    def create_map(self): 
         for y in range(len(self.map)):
             for x in range(len(self.map[y])):
                 color = "white"
@@ -128,7 +163,9 @@ class DeliveryMap:
                 elif self.map[y][x][0] == 'G':
                     color = "coral1"
                     self.goal = (x, y)
-
+                else:
+                    color = "lightblue2"
+                                
                 x1 = x * self.cell_size + self.x_offset
                 y1 = y * self.cell_size + self.y_offset
                 x2 = x1 + self.cell_size

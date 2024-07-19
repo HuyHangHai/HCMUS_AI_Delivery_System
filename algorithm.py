@@ -248,3 +248,62 @@ class Algorithm:
                         heapq.heappush(open_set, (f_cost, neighbor))
 
         return None
+    
+    # ===== LEVEL 2 =====
+    def ucs_level2(self, t : int) -> list:
+        maze = self.ui_map.map
+        start_location = np.where(maze == 'S')
+        goal_location = np.where(maze == 'G')
+
+        start = (start_location[0][0], start_location[1][0])
+        goal = (goal_location[0][0], goal_location[1][0])
+        
+        if start == goal:
+            return [start]
+        
+        rows, cols = maze.shape
+        visited = np.zeros((rows, cols), dtype=bool)
+        parent = np.full((rows, cols, 2), -1, dtype=int)
+        totalTime = 0
+        path = []
+
+        # Directions for moving in the maze (right, down, left, up)
+        directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+        
+        frontier = PriorityQueue()
+        frontier.put((0,start))
+        visited[start] = True
+        
+        while frontier:
+            current_cost, current = frontier.get()
+            for direction in directions:
+                neighbor = (current[0] + direction[0], current[1] + direction[1])
+                
+                if (0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols and
+                    not visited[neighbor] and not maze[neighbor] in {'-1'}):
+
+                    # Color neighbors
+                    self.ui_map.color_cell(neighbor, start, goal)
+
+                    if neighbor == goal:
+                        path.append(neighbor)
+                        while current != start:
+                            path.append(current)
+                            current = tuple(parent[current])
+                        path.append(start)
+                        path.reverse()
+
+                        # Draw path
+                        self.ui_map.root.after(3000, self.ui_map.draw_path(path))
+                        return path
+
+                    # totalTime += current_cost + 1 + int(maze[neighbor])
+                    # if totalTime < t:
+                    #     frontier.put((totalTime, neighbor))
+                    #     visited[neighbor] = True
+                    #     parent[neighbor] = current
+                    frontier.put((current_cost + int(maze[neighbor]), neighbor))
+                    visited[neighbor] = True
+                    parent[neighbor] = current
+        
+        return path
