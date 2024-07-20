@@ -12,8 +12,9 @@ MAP_HEIGHT = 900
 
 
 class GUI:
-    def __init__(self) -> None:
+    def __init__(self, file) -> None:
         self.root = tk.Tk()
+        self.file = file
         self.root.title("GUI")
         self.root.iconbitmap('icon.ico')
         self.root.geometry("1550x900")
@@ -25,7 +26,7 @@ class GUI:
 
     def run(self):
         level_option, algo_option = self.level_option.get(), self.algo_option.get()
-        deliveryMap = DeliveryMap(self.root)
+        deliveryMap = DeliveryMap(self.root, self.file)
         algorithm = Algorithm(deliveryMap)
 
         if level_option == "Level 1" and algo_option == 1:
@@ -38,6 +39,8 @@ class GUI:
             path = algorithm.gbfs_level1()
         elif level_option == "Level 1" and algo_option == 5:
             path = algorithm.a_star_level1()
+        # elif level_option == "Level 2" and algo_option == 1:
+        #     path = algorithm.dfs_level2(deliveryMap.t)
         elif level_option == "Level 2" and algo_option == 3:
             path = algorithm.ucs_level2(deliveryMap.t) 
 
@@ -67,6 +70,10 @@ class GUI:
             a_button.place(x = X_START + 80, y = Y_START + 420, anchor="nw")
             self.widgets.append(a_button)
         elif self.level_option.get() == "Level 2":
+            # dfs_button = ttk.Radiobutton(self.root, text = "Depth-First Search", variable = self.algo_option, value = 1)
+            # dfs_button.place(x = X_START - 40, y = Y_START + 300, anchor="nw")
+            # self.widgets.append(dfs_button)
+
             ucs_button = ttk.Radiobutton(self.root, text = "Uniform-Cost Search", variable = self.algo_option, value = 3)
             ucs_button.place(x = X_START - 40, y = Y_START + 300, anchor="nw")
             self.widgets.append(ucs_button)
@@ -128,15 +135,15 @@ class GUI:
                             )
         button.place(x = X_START + 50, y = Y_START + 500, anchor="nw")
 
-        DeliveryMap(self.root)
+        DeliveryMap(self.root, self.file)
 
         self.root.mainloop()
 
 class DeliveryMap:
-    def __init__(self, root) -> None:
+    def __init__(self, root, file) -> None:
         self.root = root
         self.canvas = tk.Canvas(root, width = MAP_WIDTH, height = MAP_HEIGHT)
-        self.map, self.t, self.f = readFile("input.txt")
+        self.map, self.t, self.f = readFile(filename=file)
 
         # Calculate to center the delivery map
         self.cell_size = 40
@@ -207,6 +214,9 @@ class DeliveryMap:
                 self.canvas.coords(self.ai_img, x2, y2)
             self.pause(200)
 
+    def print_result(self, totalTime):
+        result = tk.Label(self.root, text=f"Total time: {totalTime}", font=("Times New Roman", 15, "bold"), foreground="red")
+        result.place(x = X_START + 350, y = Y_START + 512, anchor="nw")
 
 def readFile(filename):
     with open(filename, "r") as file:

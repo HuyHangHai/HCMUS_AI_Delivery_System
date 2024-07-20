@@ -286,6 +286,10 @@ class Algorithm:
                     self.ui_map.color_cell(neighbor, start, goal)
 
                     if neighbor == goal:
+                        totalTime = current_cost + 1
+                        if totalTime > t:
+                            return path
+                        
                         path.append(neighbor)
                         while current != start:
                             path.append(current)
@@ -294,15 +298,11 @@ class Algorithm:
                         path.reverse()
 
                         # Draw path
-                        self.ui_map.root.after(3000, self.ui_map.draw_path(path))
+                        self.ui_map.root.after(100, self.ui_map.draw_path(path))
+                        self.ui_map.print_result(totalTime)
                         return path
 
-                    # totalTime += current_cost + 1 + int(maze[neighbor])
-                    # if totalTime < t:
-                    #     frontier.put((totalTime, neighbor))
-                    #     visited[neighbor] = True
-                    #     parent[neighbor] = current
-                    frontier.put((current_cost + int(maze[neighbor]), neighbor))
+                    frontier.put((current_cost + int(maze[neighbor]) + 1, neighbor))
                     visited[neighbor] = True
                     parent[neighbor] = current
         
