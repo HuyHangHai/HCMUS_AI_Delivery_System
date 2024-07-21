@@ -50,7 +50,7 @@ class Algorithm:
                         path.reverse()
 
                         # Draw path
-                        self.ui_map.root.after(3000, self.ui_map.draw_path(path))
+                        self.ui_map.root.after(100, self.ui_map.draw_path(path))
                         return path
             
                     frontier.append(neighbor)
@@ -85,7 +85,7 @@ class Algorithm:
                 path.reverse()
 
                 # Draw path
-                self.ui_map.root.after(3000, self.ui_map.draw_path(path))
+                self.ui_map.root.after(100, self.ui_map.draw_path(path))
                 return path
 
             visited.add(current)     
@@ -123,7 +123,7 @@ class Algorithm:
             self.ui_map.color_cell(current, start, goal)
                        
             if current == goal:
-                self.ui_map.root.after(3000, self.ui_map.draw_path(path))
+                self.ui_map.root.after(100, self.ui_map.draw_path(path))
                 return path
             
             
@@ -187,7 +187,7 @@ class Algorithm:
                         path.reverse()
 
                         # Draw path
-                        self.ui_map.root.after(3000, self.ui_map.draw_path(path))
+                        self.ui_map.root.after(100, self.ui_map.draw_path(path))
                         return path
             
                     frontier.put((current_cost + int(maze[neighbor]), neighbor))
@@ -236,7 +236,7 @@ class Algorithm:
                         path.reverse()
 
                         # draw path
-                        self.ui_map.root.after(3000, self.ui_map.draw_path(path))
+                        self.ui_map.root.after(100, self.ui_map.draw_path(path))
                         return path
                 
                     tentative_g_score = g_score[current] + 1

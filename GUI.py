@@ -8,8 +8,7 @@ X_START = 150
 Y_START = 100
 MAP_WIDTH = 1000
 MAP_HEIGHT = 900
-
-
+mint = "#BDFCC9"
 
 class GUI:
     def __init__(self, file) -> None:
@@ -39,8 +38,7 @@ class GUI:
             path = algorithm.gbfs_level1()
         elif level_option == "Level 1" and algo_option == 5:
             path = algorithm.a_star_level1()
-        # elif level_option == "Level 2" and algo_option == 1:
-        #     path = algorithm.dfs_level2(deliveryMap.t)
+        # Level 2
         elif level_option == "Level 2" and algo_option == 3:
             path = algorithm.ucs_level2(deliveryMap.t) 
 
@@ -70,11 +68,7 @@ class GUI:
             a_button.place(x = X_START + 80, y = Y_START + 420, anchor="nw")
             self.widgets.append(a_button)
         elif self.level_option.get() == "Level 2":
-            # dfs_button = ttk.Radiobutton(self.root, text = "Depth-First Search", variable = self.algo_option, value = 1)
-            # dfs_button.place(x = X_START - 40, y = Y_START + 300, anchor="nw")
-            # self.widgets.append(dfs_button)
-
-            ucs_button = ttk.Radiobutton(self.root, text = "Uniform-Cost Search", variable = self.algo_option, value = 3)
+            ucs_button = ttk.Radiobutton(self.root, text = "Uniform-Cost Search-2", variable = self.algo_option, value = 3)
             ucs_button.place(x = X_START - 40, y = Y_START + 300, anchor="nw")
             self.widgets.append(ucs_button)
 
@@ -165,11 +159,13 @@ class DeliveryMap:
                 elif self.map[y][x] == '-1':
                     color = "steelblue4"
                 elif self.map[y][x][0] == 'S':
-                    color = "darkseagreen2"
+                    color = mint
                     self.start = (x, y)
                 elif self.map[y][x][0] == 'G':
-                    color = "coral1"
+                    color = "lightpink"
                     self.goal = (x, y)
+                elif self.map[y][x][0] == 'F':
+                    color = "khaki1"
                 else:
                     color = "lightblue2"
                                 
@@ -208,11 +204,11 @@ class DeliveryMap:
             self.line = self.canvas.create_line(x1, y1, x2, y2, fill="darkseagreen1", width=4)
             if i == 0:
                 self.ai_img = self.canvas.create_image(x1, y1, image=self.root.img)             
-                self.pause(200)
+                self.pause(250)
                 self.canvas.coords(self.ai_img, x2, y2)   
             else:
                 self.canvas.coords(self.ai_img, x2, y2)
-            self.pause(200)
+            self.pause(250)
 
     def print_result(self, totalTime):
         result = tk.Label(self.root, text=f"Total time: {totalTime}", font=("Times New Roman", 15, "bold"), foreground="red")
