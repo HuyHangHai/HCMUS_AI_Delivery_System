@@ -40,7 +40,7 @@ class GUI:
             path = algorithm.a_star_level1()
         # Level 2
         elif level_option == "Level 2" and algo_option == 3:
-            path = algorithm.ucs_level2(deliveryMap.t) 
+            path = algorithm.ucs_level2(deliveryMap.t)
 
     def level_option_changed(self, *args):
         for widget in self.widgets:

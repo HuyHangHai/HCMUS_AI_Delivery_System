@@ -195,35 +195,38 @@ class Algorithm:
                     parent[neighbor] = current
                     
         return path
+    
+    def heuristic(self, a, b):
+            return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
     def a_star_level1(self) -> list:
-        def heuristic(a, b):
-            return abs(a[0] - b[0]) + abs(a[1] - b[1])
-        
         maze = self.ui_map.map
+        rows, cols = maze.shape     # the size of the maze
+
+        # get index of start and goal
         start_location = np.where(maze == 'S')
         goal_location = np.where(maze == 'G')
-
         start = (start_location[0][0], start_location[1][0])
         goal = (goal_location[0][0], goal_location[1][0])
-        rows, cols = maze.shape
 
-        open_set = []
-        heapq.heappush(open_set, (0, start))
+        frontier = []
+        heapq.heappush(frontier, (0, start))
         came_from = {}
-        g_score = {start: 0}
+        cost_to_get = {start: 0}
 
         # Directions for moving in the maze (right, down, left, up)
         directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
         path = []
 
-        while open_set:
-            current = heapq.heappop(open_set)[1]
+        while frontier:
+            current = heapq.heappop(frontier)[1]    # get the cell that has the smallest heuristic value
+            # check all neighbor (up, down, left, right)
             for direction in directions:
                 neighbor = (current[0] + direction[0], current[1] + direction[1])
-            
+
+                # the neighbor must be in the maze and is not an obstacle
                 if 0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols and maze[neighbor] in {'0', 'G'}:
-                    # color neighbors
+                    # color the neighbor 
                     self.ui_map.color_cell(neighbor, start, goal)
 
                     if neighbor == goal:
@@ -239,17 +242,18 @@ class Algorithm:
                         self.ui_map.root.after(100, self.ui_map.draw_path(path))
                         return path
                 
-                    tentative_g_score = g_score[current] + 1
-                    
-                    if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
+                    curr_cost = cost_to_get[current] + 1
+                    # if neighbor is not in the frontier or the current cost smaller than the existed cost
+                    if neighbor not in cost_to_get or curr_cost < cost_to_get[neighbor]:
                         came_from[neighbor] = current
-                        g_score[neighbor] = tentative_g_score
-                        f_cost = tentative_g_score + heuristic(neighbor, goal)
-                        heapq.heappush(open_set, (f_cost, neighbor))
+                        cost_to_get[neighbor] = curr_cost
+                        f_cost = curr_cost + self.heuristic(neighbor, goal)
+                        heapq.heappush(frontier, (f_cost, neighbor))
 
         return None
     
-    # ===== LEVEL 2 =====
+    # ================================ LEVEL 2 ================================
+
     def ucs_level2(self, t : int) -> list:
         maze = self.ui_map.map
         start_location = np.where(maze == 'S')
@@ -307,3 +311,124 @@ class Algorithm:
                     parent[neighbor] = current
         
         return path
+    
+    def a_star_search_level3(self, start, goal, max_time, max_fuel, cost_to_get=None, time_to_get=None, fuel_to_get=None) -> list:
+        maze = self.ui_map.map
+        rows, cols = maze.shape     # the size of the maze
+
+        if cost_to_get is None: cost_to_get = {start: 0}
+        if time_to_get is None: time_to_get = {start: 0}
+        if fuel_to_get is None: fuel_to_get = {start: 0}
+
+        frontier = []
+        heapq.heappush(frontier, (0, start))
+        came_from = {}
+
+        # Directions for moving in the maze (right, down, left, up)
+        directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+        path = []
+
+        while frontier:
+            current = heapq.heappop(frontier)[1]    # get the cell that has the smallest heuristic value
+            # check all neighbor (up, down, left, right)
+            for direction in directions:
+                neighbor = (current[0] + direction[0], current[1] + direction[1])
+
+                # the neighbor must be in the maze and is not an obstacle or start index
+                if 0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols and maze[neighbor] not in  {'-1', 'S'}:
+                    if neighbor == goal:
+                        if time_to_get[current] <= max_time - 1 and fuel_to_get[current] <= max_fuel - 1:
+                            # if the goal is the fuel_station
+                            if maze[neighbor][0] == 'F':
+                                # update the cost from start to here
+                                new_g_score = cost_to_get[current] + 1
+                                cost_to_get.clear()
+                                cost_to_get.update({neighbor: new_g_score})
+
+                                # update the time from start to here
+                                time_to_refuel = int(maze[neighbor].split('F')[1])
+                                new_time = time_to_get[current] + time_to_refuel + 1
+                                time_to_get.clear()
+                                time_to_get.update({neighbor: new_time})
+
+                                # refuel 
+                                fuel_to_get.clear()
+                                fuel_to_get.update({neighbor: 0})
+
+                            path.append(neighbor)
+                            while current in came_from:
+                                path.append(current)
+                                current = came_from[current]
+                                
+                            path.append(start)
+                            path.reverse()
+                            return path
+                        return -1
+                    
+                    # update the cost, time and fuel while
+                    curr_cost = cost_to_get[current] + 1
+                    curr_fuel = fuel_to_get[current] + 1
+                    if maze[neighbor] == '0':   # path
+                        curr_time = time_to_get[current] + 1
+                    elif maze[neighbor][0] == 'F':  # fuel_station
+                        time_to_refuel = int(maze[neighbor].split('F')[1])
+                        curr_time = time_to_get[current] + time_to_refuel + 1
+                        curr_fuel = 0
+                    else:   # toll booth
+                        curr_time = time_to_get[current] + int(maze[neighbor]) + 1
+                    
+                    # if neighbor is still not in the frontier or the time to get there less than the existed one (if the time is equal, compare the cost)
+                    if neighbor not in cost_to_get or curr_time < time_to_get[neighbor] or (curr_time == time_to_get[neighbor] and curr_cost < cost_to_get[neighbor]):
+                        came_from[neighbor] = current
+                        cost_to_get[neighbor] = curr_cost
+                        time_to_get[neighbor] = curr_time
+                        fuel_to_get[neighbor] = curr_fuel
+                        f_cost = curr_time + self.heuristic(neighbor, goal)
+                        heapq.heappush(frontier, (f_cost, neighbor))
+        return None
+
+    def search_level3(self, max_time, max_fuel) -> list:
+        maze = self.ui_map.map
+
+        # get the index of start and goal
+        start_location = np.where(maze == 'S')
+        goal_location = np.where(maze == 'G')
+        start = (start_location[0][0], start_location[1][0])
+        goal = (goal_location[0][0], goal_location[1][0])
+
+
+        path = self.a_star_search_level3(maze, start, goal, max_time, max_fuel)
+        # if time and fuel is enough to get to the goal
+        if path != -1:
+            return path
+
+        # else find the indices of all fuel_station in the maze
+        mask = np.char.startswith(maze, 'F')
+        rows = np.where(mask)[0]
+        cols = np.where(mask)[1]
+
+        # sort the fuel_station's indices in the descending order of the heuristic value from start to that fuel_station       
+        fuel_station_indices = sorted(list(zip(rows, cols)), key=lambda x: self.heuristic(start, x), reverse=True)
+
+        # for each fuel_station
+        for fuel_station in fuel_station_indices:
+            cost_to_get = {start: 0}
+            time_to_get = {start: 0}
+            fuel_to_get = {start: 0}
+
+            # find the path from start to that
+            first_path = self.a_star_search(maze, start, fuel_station, max_time, max_fuel, cost_to_get, time_to_get, fuel_to_get)
+
+            # if the path from start to that fuel_station exists
+            if first_path and first_path != -1:
+                # find the path from that fuel_station to goal
+                second_path = self.a_star_search(maze, fuel_station, goal, max_time, max_fuel, cost_to_get, time_to_get, fuel_to_get)
+                # if the path exist, return return the result path
+                if second_path and second_path != -1:
+                    result_path = first_path + second_path
+                    return result_path
+                
+            # else move to next fuel_station
+            continue
+
+        return None
