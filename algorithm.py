@@ -284,7 +284,7 @@ class Algorithm:
                 neighbor = (current[0] + direction[0], current[1] + direction[1])
                 
                 if (0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols and
-                    not visited[neighbor] and not maze[neighbor] in {'-1'}):
+                    not visited[neighbor] and not maze[neighbor] in {'-1', 'S'}):
 
                     # Color neighbors
                     self.ui_map.color_cell(neighbor, start, goal)
@@ -312,6 +312,7 @@ class Algorithm:
         
         return path
     
+    # ===== LEVEL 3 =====
     def a_star_search_level3(self, start, goal, max_time, max_fuel, cost_to_get=None, time_to_get=None, fuel_to_get=None) -> list:
         maze = self.ui_map.map
         rows, cols = maze.shape     # the size of the maze
@@ -331,11 +332,15 @@ class Algorithm:
         while frontier:
             current = heapq.heappop(frontier)[1]    # get the cell that has the smallest heuristic value
             # check all neighbor (up, down, left, right)
+            
             for direction in directions:
                 neighbor = (current[0] + direction[0], current[1] + direction[1])
 
                 # the neighbor must be in the maze and is not an obstacle or start index
                 if 0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols and maze[neighbor] not in  {'-1', 'S'}:
+                    
+                    self.ui_map.color_cell(neighbor, start, goal)
+
                     if neighbor == goal:
                         if time_to_get[current] <= max_time - 1 and fuel_to_get[current] <= max_fuel - 1:
                             # if the goal is the fuel_station
@@ -396,36 +401,40 @@ class Algorithm:
         start = (start_location[0][0], start_location[1][0])
         goal = (goal_location[0][0], goal_location[1][0])
 
-
-        path = self.a_star_search_level3(maze, start, goal, max_time, max_fuel)
+        path = self.a_star_search_level3(start, goal, max_time, max_fuel)
         # if time and fuel is enough to get to the goal
         if path != -1:
+            self.ui_map.root.after(100, self.ui_map.draw_path(path))
             return path
 
         # else find the indices of all fuel_station in the maze
-        mask = np.char.startswith(maze, 'F')
+        mask = np.char.startswith(maze.tolist(), 'F')
         rows = np.where(mask)[0]
         cols = np.where(mask)[1]
 
-        # sort the fuel_station's indices in the descending order of the heuristic value from start to that fuel_station       
+        # Generate again map
+        self.ui_map.create_map()
+
+        # # sort the fuel_station's indices in the descending order of the heuristic value from start to that fuel_station       
         fuel_station_indices = sorted(list(zip(rows, cols)), key=lambda x: self.heuristic(start, x), reverse=True)
 
-        # for each fuel_station
+        # # for each fuel_station
         for fuel_station in fuel_station_indices:
             cost_to_get = {start: 0}
             time_to_get = {start: 0}
             fuel_to_get = {start: 0}
 
             # find the path from start to that
-            first_path = self.a_star_search(maze, start, fuel_station, max_time, max_fuel, cost_to_get, time_to_get, fuel_to_get)
+            first_path = self.a_star_search_level3(start, fuel_station, max_time, max_fuel, cost_to_get, time_to_get, fuel_to_get)
 
             # if the path from start to that fuel_station exists
             if first_path and first_path != -1:
                 # find the path from that fuel_station to goal
-                second_path = self.a_star_search(maze, fuel_station, goal, max_time, max_fuel, cost_to_get, time_to_get, fuel_to_get)
+                second_path = self.a_star_search_level3(fuel_station, goal, max_time, max_fuel, cost_to_get, time_to_get, fuel_to_get)
                 # if the path exist, return return the result path
                 if second_path and second_path != -1:
                     result_path = first_path + second_path
+                    self.ui_map.root.after(100, self.ui_map.draw_path(result_path))
                     return result_path
                 
             # else move to next fuel_station

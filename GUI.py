@@ -41,6 +41,9 @@ class GUI:
         # Level 2
         elif level_option == "Level 2" and algo_option == 3:
             path = algorithm.ucs_level2(deliveryMap.t)
+        # Level 3
+        elif level_option == "Level 3" and algo_option == 5:
+            path = algorithm.search_level3(deliveryMap.t, deliveryMap.f)
 
     def level_option_changed(self, *args):
         for widget in self.widgets:
@@ -71,6 +74,11 @@ class GUI:
             ucs_button = ttk.Radiobutton(self.root, text = "Uniform-Cost Search-2", variable = self.algo_option, value = 3)
             ucs_button.place(x = X_START - 40, y = Y_START + 300, anchor="nw")
             self.widgets.append(ucs_button)
+        elif self.level_option.get() == "Level 3":
+            a_button = ttk.Radiobutton(self.root, text = "A* Search-2", variable = self.algo_option, value = 5)
+            a_button.place(x = X_START - 40, y = Y_START + 300, anchor="nw")
+            self.widgets.append(a_button)
+
 
     def create(self):
         schoolName = tk.Label(self.root, text="University of Science - VNU-HCM", font=("Times New Roman", 13))
