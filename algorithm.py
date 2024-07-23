@@ -8,38 +8,42 @@ class Algorithm:
 
     def bfs_level1(self) -> list:  
         maze = self.ui_map.map
+        rows, cols = maze.shape     # size of the maze
+
+        # get the index of start and goal
         start_location = np.where(maze == 'S')
         goal_location = np.where(maze == 'G')
-
         start = (start_location[0][0], start_location[1][0])
         goal = (goal_location[0][0], goal_location[1][0])
 
         if start == goal:
             return [start]
 
-        rows, cols = maze.shape
+        # keep track of visited cell and the path
         visited = np.zeros((rows, cols), dtype=bool)
         parent = np.full((rows, cols, 2), -1, dtype=int)
         path = []
 
-        # Directions for moving in the maze (right, down, left, up)
-        directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
-        
         frontier = []
         frontier.append(start)
         visited[start] = True
+
+        # Directions for moving in the maze (right, down, left, up)
+        directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
     
         while frontier:
             current = frontier.pop(0)
             for direction in directions:
                 neighbor = (current[0] + direction[0], current[1] + direction[1])
-                
+
+                # neighbor must be in the maze and is not an obstacle
                 if (0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols and
                     not visited[neighbor] and maze[neighbor] in {'0', 'G'}):
 
                     # Color neighbors
                     self.ui_map.color_cell(neighbor, start, goal)
 
+                    # arrive the goal
                     if neighbor == goal:
                         path.append(neighbor)
                         while current != start:
@@ -52,7 +56,8 @@ class Algorithm:
                         # Draw path
                         self.ui_map.root.after(100, self.ui_map.draw_path(path))
                         return path
-            
+
+                    # add neighbor to frontier, visited cell and the path
                     frontier.append(neighbor)
                     visited[neighbor] = True
                     parent[neighbor] = current
@@ -201,7 +206,7 @@ class Algorithm:
 
     def a_star_level1(self) -> list:
         maze = self.ui_map.map
-        rows, cols = maze.shape     # the size of the maze
+        rows, cols = maze.shape     # size of the maze
 
         # get index of start and goal
         start_location = np.where(maze == 'S')
@@ -313,7 +318,7 @@ class Algorithm:
         return path
     
     # ===== LEVEL 3 =====
-    def a_star_search_level3(self, start, goal, max_time, max_fuel, cost_to_get=None, time_to_get=None, fuel_to_get=None) -> list:
+    def a_star_level3(self, start, goal, max_time, max_fuel, cost_to_get=None, time_to_get=None, fuel_to_get=None) -> list:
         maze = self.ui_map.map
         rows, cols = maze.shape     # the size of the maze
 
@@ -401,7 +406,7 @@ class Algorithm:
         start = (start_location[0][0], start_location[1][0])
         goal = (goal_location[0][0], goal_location[1][0])
 
-        path = self.a_star_search_level3(start, goal, max_time, max_fuel)
+        path = self.a_star_level3(start, goal, max_time, max_fuel)
         # if time and fuel is enough to get to the goal
         if path != -1:
             self.ui_map.root.after(100, self.ui_map.draw_path(path))
@@ -415,22 +420,22 @@ class Algorithm:
         # Generate again map
         self.ui_map.create_map()
 
-        # # sort the fuel_station's indices in the descending order of the heuristic value from start to that fuel_station       
-        fuel_station_indices = sorted(list(zip(rows, cols)), key=lambda x: self.heuristic(start, x), reverse=True)
+        # sort the fuel_station's indices in the descending order of the heuristic value from start to that fuel_station
+        fuel_station_indices = sorted(list(zip(rows, cols)), key=lambda x: self.heuristic(x, goal))
 
-        # # for each fuel_station
+        # for each fuel_station
         for fuel_station in fuel_station_indices:
             cost_to_get = {start: 0}
             time_to_get = {start: 0}
             fuel_to_get = {start: 0}
 
             # find the path from start to that
-            first_path = self.a_star_search_level3(start, fuel_station, max_time, max_fuel, cost_to_get, time_to_get, fuel_to_get)
+            first_path = self.a_star_level3(start, fuel_station, max_time, max_fuel, cost_to_get, time_to_get, fuel_to_get)
 
             # if the path from start to that fuel_station exists
             if first_path and first_path != -1:
                 # find the path from that fuel_station to goal
-                second_path = self.a_star_search_level3(fuel_station, goal, max_time, max_fuel, cost_to_get, time_to_get, fuel_to_get)
+                second_path = self.a_star_level3(fuel_station, goal, max_time, max_fuel, cost_to_get, time_to_get, fuel_to_get)
                 # if the path exist, return return the result path
                 if second_path and second_path != -1:
                     result_path = first_path + second_path

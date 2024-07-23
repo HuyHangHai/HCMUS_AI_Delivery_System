@@ -230,4 +230,4 @@ def readFile(filename):
         for i in range(n):
             maze[i] = data[i + 1].strip().split()
 
-    return maze, t, f       
+    return maze, t, f    
