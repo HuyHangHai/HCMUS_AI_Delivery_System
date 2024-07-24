@@ -21,7 +21,7 @@ class Algorithm:
 
         # keep track of visited cell and the path
         visited = np.zeros((rows, cols), dtype=bool)
-        parent = np.full((rows, cols, 2), -1, dtype=int)
+        come_from = np.full((rows, cols, 2), -1, dtype=int)
         path = []
 
         frontier = []
@@ -48,7 +48,7 @@ class Algorithm:
                         path.append(neighbor)
                         while current != start:
                             path.append(current)
-                            current = tuple(parent[current])
+                            current = tuple(come_from[current])
 
                         path.append(start)
                         path.reverse()
@@ -60,7 +60,7 @@ class Algorithm:
                     # add neighbor to frontier, visited cell and the path
                     frontier.append(neighbor)
                     visited[neighbor] = True
-                    parent[neighbor] = current
+                    come_from[neighbor] = current
             
         return path
     
@@ -317,7 +317,7 @@ class Algorithm:
         
         return path
     
-    # ===== LEVEL 3 =====
+    # ================================ LEVEL 3 ================================
     def a_star_level3(self, start, goal, max_time, max_fuel, cost_to_get=None, time_to_get=None, fuel_to_get=None) -> list:
         maze = self.ui_map.map
         rows, cols = maze.shape     # the size of the maze
@@ -369,8 +369,10 @@ class Algorithm:
                             while current in came_from:
                                 path.append(current)
                                 current = came_from[current]
+                            
+                            if maze[start][0] != 'F':
+                                path.append(start)
                                 
-                            path.append(start)
                             path.reverse()
                             return path
                         return -1

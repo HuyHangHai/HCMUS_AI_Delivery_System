@@ -45,6 +45,9 @@ class GUI:
         elif level_option == "Level 3" and algo_option == 5:
             path = algorithm.search_level3(deliveryMap.t, deliveryMap.f)
 
+        # write the result path to output file
+        writeResultPath(self.file, path)
+
     def level_option_changed(self, *args):
         for widget in self.widgets:
             widget.place_forget()
@@ -230,4 +233,13 @@ def readFile(filename):
         for i in range(n):
             maze[i] = data[i + 1].strip().split()
 
-    return maze, t, f    
+    return maze, t, f
+
+def writeResultPath(inputFilename, path):
+    filename = inputFilename.split('.')[0]
+    filename = filename.split('_')
+    input = filename[0][5]
+    level = filename[1][5]
+    outputFilename = "output" + input + "_level" + level + ".txt"
+    with open(outputFilename, 'w') as file:
+        file.write(' '.join(map(str, path)))
