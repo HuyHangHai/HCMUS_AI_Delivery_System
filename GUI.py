@@ -266,4 +266,8 @@ def writeResultPath(inputFilename, path):
     level = filename[1][5]
     outputFilename = "output" + input + "_level" + level + ".txt"
     with open(outputFilename, 'w') as file:
-        file.write(' '.join(map(str, path)))
+        if len(path) == 0:
+            file.write('No path found!')
+        else:
+            file.write(' '.join(map(str, path)))
+        

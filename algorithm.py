@@ -172,12 +172,12 @@ class Algorithm:
         frontier = PriorityQueue()
         frontier.put((0,start))
         visited[start] = True
-        
-        while frontier:
+        x = 0
+        while frontier.empty() == 0:
             current_cost, current = frontier.get()
+            
             for direction in directions:
                 neighbor = (current[0] + direction[0], current[1] + direction[1])
-                
                 if (0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols and
                     not visited[neighbor] and maze[neighbor] in {'0', 'G'}):
 
@@ -197,6 +197,8 @@ class Algorithm:
                         return path
             
                     frontier.put((current_cost + int(maze[neighbor]), neighbor))
+                    x+=1
+                    print(x)                    
                     visited[neighbor] = True
                     parent[neighbor] = current
                     
@@ -256,7 +258,7 @@ class Algorithm:
                         f_cost = curr_cost + self.heuristic(neighbor, goal)
                         heapq.heappush(frontier, (f_cost, neighbor))
 
-        return None
+        return path
     
     # ================================ LEVEL 2 ================================
 
