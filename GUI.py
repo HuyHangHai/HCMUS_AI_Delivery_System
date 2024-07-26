@@ -44,6 +44,9 @@ class GUI:
         # Level 3
         elif level_option == "Level 3" and algo_option == 5:
             path = algorithm.search_level3(deliveryMap.t, deliveryMap.f)
+        #Level 4
+        elif level_option == "Level 4" and algo_option == 5:
+            path = algorithm.search_level4(deliveryMap.t, deliveryMap.f)
 
     def level_option_changed(self, *args):
         for widget in self.widgets:
@@ -76,6 +79,10 @@ class GUI:
             self.widgets.append(ucs_button)
         elif self.level_option.get() == "Level 3":
             a_button = ttk.Radiobutton(self.root, text = "A* Search-2", variable = self.algo_option, value = 5)
+            a_button.place(x = X_START - 40, y = Y_START + 300, anchor="nw")
+            self.widgets.append(a_button)
+        elif self.level_option.get() == "Level 4":
+            a_button = ttk.Radiobutton(self.root, text = "A* Search-3", variable = self.algo_option, value = 5)
             a_button.place(x = X_START - 40, y = Y_START + 300, anchor="nw")
             self.widgets.append(a_button)
 
@@ -201,22 +208,39 @@ class DeliveryMap:
         self.canvas.after(duration)
 
     def draw_path(self, path : list):
-        for i in range(len(path) - 1):
-            y1, x1 = path[i]
-            y2, x2 = path[i + 1]
-            x1 = x1 * self.cell_size + self.x_offset + 20
-            y1 = y1 * self.cell_size + self.y_offset + 20
-            x2 = x2 * self.cell_size + self.x_offset + 20
-            y2 = y2 * self.cell_size + self.y_offset + 20
-        
-            self.line = self.canvas.create_line(x1, y1, x2, y2, fill="darkseagreen1", width=4)
-            if i == 0:
-                self.ai_img = self.canvas.create_image(x1, y1, image=self.root.img)             
+        if len(path) == 2:
+            for i in range(len(path) - 1):
+                y1, x1 = path[i]
+                y2, x2 = path[i + 1]
+                x1 = x1 * self.cell_size + self.x_offset + 20
+                y1 = y1 * self.cell_size + self.y_offset + 20
+                x2 = x2 * self.cell_size + self.x_offset + 20
+                y2 = y2 * self.cell_size + self.y_offset + 20
+
+                self.line = self.canvas.create_line(x1, y1, x2, y2, fill="deeppink1", width=4)
+                self.ai_img = self.canvas.create_image(x2, y2, image=self.root.img)
+                self.pause(350)
+                
+                if i == len(path) - 2:
+                    self.canvas.delete(self.ai_img)
+
+        else:
+            for i in range(len(path) - 1):
+                y1, x1 = path[i]
+                y2, x2 = path[i + 1]
+                x1 = x1 * self.cell_size + self.x_offset + 20
+                y1 = y1 * self.cell_size + self.y_offset + 20
+                x2 = x2 * self.cell_size + self.x_offset + 20
+                y2 = y2 * self.cell_size + self.y_offset + 20
+             
+                self.line = self.canvas.create_line(x1, y1, x2, y2, fill="darkseagreen1", width=4)
+                if i == 0:
+                    self.ai_img = self.canvas.create_image(x1, y1, image=self.root.img)                         
+                    self.pause(250)
+                    self.canvas.coords(self.ai_img, x2, y2)   
+                else:
+                    self.canvas.coords(self.ai_img, x2, y2)
                 self.pause(250)
-                self.canvas.coords(self.ai_img, x2, y2)   
-            else:
-                self.canvas.coords(self.ai_img, x2, y2)
-            self.pause(250)
 
     def print_result(self, totalTime):
         result = tk.Label(self.root, text=f"Total time: {totalTime}", font=("Times New Roman", 15, "bold"), foreground="red")

@@ -1,6 +1,7 @@
 import numpy as np
 from queue import PriorityQueue
 import heapq
+from itertools import zip_longest
 
 class Algorithm:
     def __init__(self, deliveryMap) -> None:
@@ -441,3 +442,138 @@ class Algorithm:
             continue
 
         return None
+    
+    # ========== LEVEL 4 ==========
+    def find_start_goal_pairs(self, maze):
+        starts = []
+        goals = []
+
+        # Loop through the maze to find 'S' and 'G' with digits
+        for i in range(len(maze)):
+            for j in range(len(maze[0])):
+                if maze[i][j].startswith('S') and maze[i][j][1:].isdigit():
+                    starts.append((i, j))
+                elif maze[i][j].startswith('G') and maze[i][j][1:].isdigit():
+                    goals.append((i, j))
+
+        return starts, goals
+
+    def calculate_cost(self, current_cost, current_time, current_fuel, cell_value):
+        if cell_value.isdigit():
+            new_time_cost = int(cell_value)
+            new_fuel_cost = int(cell_value)
+        elif cell_value.startswith('F'):
+            refuel_time = int(cell_value[1:])  # Extract the refuel time from 'F1', 'F2', ..., 'F10'
+            new_time_cost = refuel_time
+            new_fuel_cost = refuel_time
+        else:
+            new_time_cost = 1
+            new_fuel_cost = 1
+
+        return current_cost + 1, current_time - new_time_cost, current_fuel - new_fuel_cost
+
+    def a_star_search_level4(self, start, goal, maze, max_fuel):
+        rows, cols = maze.shape
+        frontier = []
+        heapq.heappush(frontier, (0, start, 0, max_fuel))  # (priority, current_node, current_cost, current_fuel)
+        came_from = {}
+        cost_to_get = {start: (0, 0)}  # (cost, time, fuel)
+
+        directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+
+        while frontier:
+            current_cost, current, current_time, current_fuel = heapq.heappop(frontier)
+
+            if current == goal:
+                path = []
+                while current in came_from:
+                    path.append(current)
+                    current = came_from[current]
+                path.append(start)
+                path.reverse()  # Reverse to get the correct order from start to goal
+                return path
+            
+            if self.is_start_location(start):               
+                starts, goals = self.find_start_goal_pairs(maze)
+                
+                if current in starts or current in goals:
+                    continue
+
+            for direction in directions:
+                neighbor = (current[0] + direction[0], current[1] + direction[1])
+
+                # Check if the neighbor is valid
+                if 0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols and maze[neighbor] != '-1':
+                    new_cost, new_time, new_fuel = self.calculate_cost(current_cost, current_time, current_fuel, maze[neighbor])
+
+                    if neighbor not in cost_to_get or (new_cost < cost_to_get[neighbor][0] and new_fuel >= 0):
+                        cost_to_get[neighbor] = (new_cost, new_time, new_fuel)
+                        priority = new_cost + self.heuristic(neighbor, goal)
+                        heapq.heappush(frontier, (priority, neighbor, new_cost, new_fuel))
+                        came_from[neighbor] = current
+
+        return None  # If the goal cannot be reached, return None
+    
+    def is_start_location(self, start_check):
+        maze = self.ui_map.map
+        
+        start_location = np.where(maze == 'S')
+        goal_location = np.where(maze == 'G')
+        start = (start_location[0][0], start_location[1][0])
+        goal = (goal_location[0][0], goal_location[1][0])
+        
+        if start_check == start:
+            return True
+        else:
+            return False
+
+    def find_all_paths(self, starts, goals, max_fuel):
+        paths = []
+        visited_goals = set()
+
+        for start, goal in zip(starts, goals):
+            # Check if the current goal has already been visited
+            if goal in visited_goals:
+                continue
+
+            path = self.a_star_search_level4(start, goal, self.ui_map.map, max_fuel)
+            if path:
+                paths.append(path)
+                visited_goals.add(goal)
+
+        return paths
+
+    def search_level4(self, max_time, max_fuel) -> list:
+        maze = self.ui_map.map
+        
+        start_location = np.where(maze == 'S')
+        goal_location = np.where(maze == 'G')
+        start = (start_location[0][0], start_location[1][0])
+        goal = (goal_location[0][0], goal_location[1][0])
+
+        path_main = self.a_star_search_level4(start, goal, self.ui_map.map, max_fuel)
+        
+        starts, goals = self.find_start_goal_pairs(maze)
+
+        all_paths = self.find_all_paths(starts, goals, max_fuel)
+        
+        all_paths.append(path_main)
+
+        if all_paths:
+            max_len = max(len(sublist) for sublist in all_paths)
+
+            for col in range(1, max_len):
+                for row in all_paths:
+                    if col < len(row):
+                        path = []
+                        path.append(row[col - 1])
+                        path.append(row[col])
+                        self.ui_map.draw_path(path)
+
+        path_result = path_main
+
+        if path_result:
+            self.ui_map.root.after(100, self.ui_map.draw_path(path_result))
+            return path_result
+        else: 
+            return None
