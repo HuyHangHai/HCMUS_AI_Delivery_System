@@ -172,7 +172,6 @@ class Algorithm:
         frontier = PriorityQueue()
         frontier.put((0,start))
         visited[start] = True
-        x = 0
         while frontier.empty() == 0:
             current_cost, current = frontier.get()
             
@@ -197,8 +196,6 @@ class Algorithm:
                         return path
             
                     frontier.put((current_cost + int(maze[neighbor]), neighbor))
-                    x+=1
-                    print(x)                    
                     visited[neighbor] = True
                     parent[neighbor] = current
                     
