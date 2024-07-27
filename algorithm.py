@@ -1,7 +1,6 @@
 import numpy as np
 from queue import PriorityQueue
 import heapq
-from itertools import zip_longest
 
 class Algorithm:
     def __init__(self, deliveryMap) -> None:
@@ -123,7 +122,7 @@ class Algorithm:
         frontier = PriorityQueue()
         frontier.put((0,start,[start]))
         
-        while frontier:
+        while not frontier.empty():
             _, current, path=frontier.get()
 
             self.ui_map.color_cell(current, start, goal)
@@ -131,7 +130,6 @@ class Algorithm:
             if current == goal:
                 self.ui_map.root.after(100, self.ui_map.draw_path(path))
                 return path
-            
             
             visited.add(current)
             
@@ -147,7 +145,7 @@ class Algorithm:
                     frontier.put((heuristic, neighbor, new_path))
                     visited.add(neighbor)
                     
-        return None
+        return []
 
         
     def ucs_level1(self)->list:
