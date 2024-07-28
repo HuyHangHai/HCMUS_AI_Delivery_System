@@ -11,9 +11,8 @@ MAP_HEIGHT = 900
 mint = "#BDFCC9"
 
 class GUI:
-    def __init__(self, file) -> None:
+    def __init__(self) -> None:
         self.root = tk.Tk()
-        self.file = file
         self.root.title("GUI")
         self.root.iconbitmap('icon.ico')
         self.root.geometry("1550x900")
@@ -24,35 +23,151 @@ class GUI:
         self.level_option = tk.StringVar()
         self.input_option = tk.StringVar()
         self.algo_option = tk.IntVar()
-        self.deliveryMap = DeliveryMap(self.root, "input1_level1.txt")
+        self.file = "input1_level1.txt"
+        self.deliveryMap = DeliveryMap(self.root, self.file)
         self.root.img = tk.PhotoImage(file="robot.png")
 
     def run(self):
         level_option, algo_option = self.level_option.get(), self.algo_option.get()
         algorithm = Algorithm(self.deliveryMap)
+        path, algo_name = [], []
 
         if level_option == "Level 1" and algo_option == 1:
-            path = algorithm.dfs_level1()
+            path.append(algorithm.dfs_level1())
+            algo_name.append("DFS")
+
+            self.deliveryMap.create_map()
+
+            path.append(algorithm.bfs_level1())
+            algo_name.append("BFS")
+
+            self.deliveryMap.create_map()
+
+            path.append(algorithm.ucs_level1())
+            algo_name.append("UCS")
+
+            self.deliveryMap.create_map()
+
+            path.append(algorithm.gbfs_level1())
+            algo_name.append("GBFS")
+
+            self.deliveryMap.create_map()
+
+            path.append(algorithm.a_star_level1())
+            algo_name.append("A*")
+            self.deliveryMap.create_map()
+
         elif level_option == "Level 1" and algo_option == 2:
-            path = algorithm.bfs_level1()
+            path.append(algorithm.bfs_level1())
+            algo_name.append("BFS")
+
+            self.deliveryMap.create_map()
+
+            path.append(algorithm.dfs_level1())
+            algo_name.append("DFS")
+
+            self.deliveryMap.create_map()
+
+            path.append(algorithm.ucs_level1())
+            algo_name.append("UCS")
+
+            self.deliveryMap.create_map()
+
+            path.append(algorithm.gbfs_level1())
+            algo_name.append("GBFS")
+
+            self.deliveryMap.create_map()
+
+            path.append(algorithm.a_star_level1())
+            algo_name.append("A*")
+            self.deliveryMap.create_map()
         elif level_option == "Level 1" and algo_option == 3:
-            path = algorithm.ucs_level1() 
+            path.append(algorithm.ucs_level1())
+            algo_name.append("UCS")
+
+            self.deliveryMap.create_map()
+
+            path.append(algorithm.dfs_level1())
+            algo_name.append("DFS")
+
+            self.deliveryMap.create_map()
+
+            path.append(algorithm.bfs_level1())
+            algo_name.append("BFS") 
+
+            self.deliveryMap.create_map()  
+                    
+            path.append(algorithm.gbfs_level1())
+            algo_name.append("GBFS")
+
+            self.deliveryMap.create_map()
+
+            path.append(algorithm.a_star_level1())
+            algo_name.append("A*") 
+            self.deliveryMap.create_map()
         elif level_option == "Level 1" and algo_option == 4:
-            path = algorithm.gbfs_level1()
+            path.append(algorithm.gbfs_level1())
+            algo_name.append("GBFS")
+
+            self.deliveryMap.create_map()
+
+            path.append(algorithm.dfs_level1())
+            algo_name.append("DFS") 
+
+            self.deliveryMap.create_map() 
+
+            path.append(algorithm.bfs_level1())
+            algo_name.append("BFS")
+
+            self.deliveryMap.create_map()
+
+            path.append(algorithm.ucs_level1())
+            algo_name.append("UCS")
+
+            self.deliveryMap.create_map()
+
+            path.append(algorithm.a_star_level1())
+            algo_name.append("A*")
+            self.deliveryMap.create_map()
         elif level_option == "Level 1" and algo_option == 5:
-            path = algorithm.a_star_level1()
+            path.append(algorithm.a_star_level1())
+            algo_name.append("A*")
+
+            self.deliveryMap.create_map()
+
+            path.append(algorithm.dfs_level1())
+            algo_name.append("DFS")
+
+            self.deliveryMap.create_map()
+
+            path.append(algorithm.bfs_level1())
+            algo_name.append("BFS")
+
+            self.deliveryMap.create_map()
+
+            path.append(algorithm.ucs_level1())
+            algo_name.append("UCS")
+
+            self.deliveryMap.create_map()
+
+            path.append(algorithm.gbfs_level1())
+            algo_name.append("GBFS")
+            self.deliveryMap.create_map()
         # Level 2
         elif level_option == "Level 2" and algo_option == 3:
-            path = algorithm.ucs_level2(self.deliveryMap.t)
+            path.append(algorithm.ucs_level2(self.deliveryMap.t))
+            algo_name.append("UCS-2")
         # Level 3
         elif level_option == "Level 3" and algo_option == 5:
-            path, _, _ = algorithm.search_level3(self.deliveryMap.t, self.deliveryMap.f)
+            result, _, _ = algorithm.search_level3(self.deliveryMap.t, self.deliveryMap.f)
+            path.append(result)
+            algo_name.append("A*-2")
         #Level 4
         elif level_option == "Level 4" and algo_option == 5:
-            path = algorithm.search_level4(self.deliveryMap.t, self.deliveryMap.f)
+            path.append(algorithm.search_level4(self.deliveryMap.t, self.deliveryMap.f))
+            algo_name.append("A*-3")     
 
-        # write the result path to output file
-        writeResultPath(self.file, path)
+        writeResultPath(self.file, path, algo_name)   
 
     def level_option_changed(self, *args):
         for widget in self.widgets:
@@ -117,12 +232,14 @@ class GUI:
 
         level_index = self.level_option.get().split(' ')[1]
         file_index = self.input_option.get()
-        self.deliveryMap = DeliveryMap(self.root, f"input{file_index}_level{level_index}.txt")
+        self.file = f"input{file_index}_level{level_index}.txt"
+        self.deliveryMap = DeliveryMap(self.root, self.file)
 
     def input_option_changed(self, *arg):
         level_index = self.level_option.get().split(' ')[1]
         file_index = self.input_option.get()
-        self.deliveryMap = DeliveryMap(self.root, f"input{file_index}_level{level_index}.txt")
+        self.file = f"input{file_index}_level{level_index}.txt"
+        self.deliveryMap = DeliveryMap(self.root, self.file)
 
     def create(self):
         schoolName = tk.Label(self.root, text="University of Science - VNU-HCM", font=("Times New Roman", 13))
@@ -288,6 +405,8 @@ class DeliveryMap:
     def print_result_lv1(self, totalCost):
         result = tk.Label(self.root, text=f"Total Cost: {totalCost}", font=("Times New Roman", 15, "bold"), foreground="red")
         result.place(x = X_START + 350, y = Y_START + 512, anchor="nw")
+        self.pause(500)
+        result.place_forget()
 
     def print_result_lv2(self, totalTime, totalCost):
         result_time = tk.Label(self.root, text=f"Total time: {totalTime}", font=("Times New Roman", 15, "bold"), foreground="red")
@@ -301,6 +420,12 @@ class DeliveryMap:
         result = tk.Label(self.root, text=f"Total Cost: {totalCost}", font=("Times New Roman", 15, "bold"), foreground="red")
         result.place(x = X_START + 425, y = Y_START + 512, anchor="nw")
 
+    def print_no_path(self):
+        result = tk.Label(self.root, text="No path exists", font=("Times New Roman", 15, "bold"), foreground="red")
+        result.place(x = X_START + 300, y = Y_START + 512, anchor="nw")
+        self.pause(700)
+        result.place_forget()
+
 def readFile(filename):
     with open(filename, "r") as file:
         data = file.readlines()
@@ -311,15 +436,16 @@ def readFile(filename):
 
     return maze, t, f
 
-def writeResultPath(inputFilename, path):
+def writeResultPath(inputFilename, path, algo_name):
     filename = inputFilename.split('.')[0]
     filename = filename.split('_')
     input = filename[0][5]
     level = filename[1][5]
     outputFilename = "output" + input + "_level" + level + ".txt"
     with open(outputFilename, 'w') as file:
-        if len(path) == 0 or path is None:
-            file.write('No path found!')
-        else:
-            file.write(' '.join(map(str, path)))
+        for i in range(len(path)):
+            file.write(algo_name[i] + ':\n')
+            file.write("S\n")
+            file.write(' '.join(str(cell) for cell in path[i]))
+            file.write("\n")
         

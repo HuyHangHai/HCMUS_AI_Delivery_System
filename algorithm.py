@@ -61,6 +61,8 @@ class Algorithm:
 
                         # Print result
                         self.ui_map.print_result_lv1(totalCost)
+
+                        # Generate map again for other algorithms
                         return path
 
                     # add neighbor to frontier, visited cell and the path
@@ -68,6 +70,7 @@ class Algorithm:
                     visited[neighbor] = True
                     come_from[neighbor] = current
             
+        self.ui_map.print_no_path()
         return path
     
     def dfs_level1(self) -> list:
@@ -103,6 +106,7 @@ class Algorithm:
                 # Print result
                 self.ui_map.print_result_lv1(totalCost - 1)
 
+                # Generate map again for other algorithms
                 return path
 
             visited.add(current)     
@@ -120,6 +124,7 @@ class Algorithm:
                     frontier.append(neighbor)
                     parent[neighbor] = current        
 
+        self.ui_map.print_no_path()
         return path
     
     def gbfs_level1(self) -> list:
@@ -145,7 +150,7 @@ class Algorithm:
 
                 # Print result
                 self.ui_map.print_result_lv1(totalCost)
-                
+
                 return path
             
             visited.add(current)
@@ -161,7 +166,8 @@ class Algorithm:
                     
                     frontier.put((heuristic, neighbor, totalCost + 1, new_path))
                     visited.add(neighbor)
-                    
+
+        self.ui_map.print_no_path()            
         return []
 
         
@@ -221,7 +227,8 @@ class Algorithm:
                     frontier.put((current_cost + int(maze[neighbor]), neighbor))
                     visited[neighbor] = True
                     parent[neighbor] = current
-                    
+
+        self.ui_map.print_no_path()            
         return path
     
     def heuristic(self, a, b):
@@ -285,6 +292,7 @@ class Algorithm:
                         f_cost = curr_cost + self.heuristic(neighbor, goal)
                         heapq.heappush(frontier, (f_cost, neighbor))
 
+        self.ui_map.print_no_path()
         return path
     
     # ================================ LEVEL 2 ================================
@@ -313,7 +321,7 @@ class Algorithm:
         frontier.put((0, 0, start))
         visited[start] = True
         
-        while frontier:
+        while frontier.empty() == 0:
             current_cost, current_step, current = frontier.get()
             for direction in directions:
                 neighbor = (current[0] + direction[0], current[1] + direction[1])
@@ -328,7 +336,8 @@ class Algorithm:
                         totalTime = current_cost + 1
                         totalCost = current_step + 1
                         if totalTime > t:
-                            return path
+                            self.ui_map.print_no_path()
+                            return []
                         
                         path.append(neighbor)
                         while current != start:
@@ -346,6 +355,7 @@ class Algorithm:
                     visited[neighbor] = True
                     parent[neighbor] = current
         
+        self.ui_map.print_no_path()
         return []
     
     # ================================ LEVEL 3 ================================
@@ -435,6 +445,7 @@ class Algorithm:
                         fuel_to_get[neighbor] = curr_fuel
                         f_cost = curr_time + self.heuristic(neighbor, goal)
                         heapq.heappush(frontier, (f_cost, neighbor))
+
         return None, 0, 0
 
     def search_level3(self, max_time, max_fuel, start=None, goal=None, fuel_station_indices=None) -> list:
@@ -490,6 +501,8 @@ class Algorithm:
                     
                     return result_path, totalCost, totalTime
             return None, 0, 0
+        
+        self.ui_map.print_no_path()
         return None, 0, 0
     
     # ========== LEVEL 4 ==========
@@ -625,4 +638,5 @@ class Algorithm:
             self.ui_map.root.after(100, self.ui_map.draw_path(path_result))
             return path_result
         else: 
+            self.ui_map.print_no_path()
             return None
