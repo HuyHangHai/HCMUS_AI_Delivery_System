@@ -1,0 +1,4 @@
+===== CÁC THƯ VIỆN CẦN THIẾT NHẰM HỖ TRỢ CHẠY CHƯƠNG TRÌNH PROJECT 01 - DELIVERY SYSTEM =====
+1. Thư viện numpy.
+2. Thư viện tkinter.
+3. Thư viện queue.

@@ -1,0 +1,15 @@
+DFS:
+S
+
+BFS:
+S
+
+UCS:
+S
+
+GBFS:
+S
+
+A*:
+S
+
