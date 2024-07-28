@@ -18,15 +18,19 @@ class GUI:
         self.root.iconbitmap('icon.ico')
         self.root.geometry("1550x900")
         self.level_option_list = ["Level 1", "Level 2", "Level 3", "Level 4"]
+        self.input_option_list = ["1", "2", "3", "4", "5"]
+        self.input_option_list_level4 = ["1"]
         self.widgets = []
         self.level_option = tk.StringVar()
+        self.input_option = tk.StringVar()
         self.algo_option = tk.IntVar()
+        self.deliveryMap = DeliveryMap(self.root, "input1_level1.txt")
         self.root.img = tk.PhotoImage(file="robot.png")
 
     def run(self):
         level_option, algo_option = self.level_option.get(), self.algo_option.get()
-        deliveryMap = DeliveryMap(self.root, self.file)
-        algorithm = Algorithm(deliveryMap)
+        # deliveryMap = DeliveryMap(self.root, self.file)
+        algorithm = Algorithm(self.deliveryMap)
 
         if level_option == "Level 1" and algo_option == 1:
             path = algorithm.dfs_level1()
@@ -40,14 +44,13 @@ class GUI:
             path = algorithm.a_star_level1()
         # Level 2
         elif level_option == "Level 2" and algo_option == 3:
-            path = algorithm.a_star_level2(deliveryMap.t)
-            # print(path)
+            path = algorithm.ucs_level2(self.deliveryMap.t)
         # Level 3
         elif level_option == "Level 3" and algo_option == 5:
-            path = algorithm.search_level3(deliveryMap.t, deliveryMap.f)
+            path = algorithm.search_level3(self.deliveryMap.t, self.deliveryMap.f)
         #Level 4
         elif level_option == "Level 4" and algo_option == 5:
-            path = algorithm.search_level4(deliveryMap.t, deliveryMap.f)
+            path = algorithm.search_level4(self.deliveryMap.t, self.deliveryMap.f)
 
         # write the result path to output file
         writeResultPath(self.file, path)
@@ -77,19 +80,50 @@ class GUI:
             a_button = ttk.Radiobutton(self.root, text = "A* Search", variable = self.algo_option, value = 5)
             a_button.place(x = X_START + 80, y = Y_START + 420, anchor="nw")
             self.widgets.append(a_button)
+
+            self.input_option.set(self.input_option_list[0])
+            self.input_menu = tk.OptionMenu(self.root, self.input_option, *self.input_option_list, command=self.input_option_changed)
+            self.input_menu.place(x = X_START + 275, y = Y_START + 200, anchor="nw") 
+            self.widgets.append(self.input_menu)
+
         elif self.level_option.get() == "Level 2":
             ucs_button = ttk.Radiobutton(self.root, text = "Uniform-Cost Search-2", variable = self.algo_option, value = 3)
             ucs_button.place(x = X_START - 40, y = Y_START + 300, anchor="nw")
             self.widgets.append(ucs_button)
+
+            self.input_option.set(self.input_option_list[0])
+            self.input_menu = tk.OptionMenu(self.root, self.input_option, *self.input_option_list, command=self.input_option_changed)
+            self.input_menu.place(x = X_START + 275, y = Y_START + 200, anchor="nw") 
+            self.widgets.append(self.input_menu)
+
         elif self.level_option.get() == "Level 3":
             a_button = ttk.Radiobutton(self.root, text = "A* Search-2", variable = self.algo_option, value = 5)
             a_button.place(x = X_START - 40, y = Y_START + 300, anchor="nw")
             self.widgets.append(a_button)
+
+            self.input_option.set(self.input_option_list[0])
+            self.input_menu = tk.OptionMenu(self.root, self.input_option, *self.input_option_list, command=self.input_option_changed)
+            self.input_menu.place(x = X_START + 275, y = Y_START + 200, anchor="nw") 
+            self.widgets.append(self.input_menu)
+
         elif self.level_option.get() == "Level 4":
             a_button = ttk.Radiobutton(self.root, text = "A* Search-3", variable = self.algo_option, value = 5)
             a_button.place(x = X_START - 40, y = Y_START + 300, anchor="nw")
             self.widgets.append(a_button)
 
+            self.input_option.set(self.input_option_list[0])
+            option_list_lv4 = self.input_menu = tk.OptionMenu(self.root, self.input_option, *self.input_option_list_level4, command=self.input_option_changed)
+            self.input_menu.place(x = X_START + 275, y = Y_START + 200, anchor="nw") 
+            self.widgets.append(option_list_lv4)
+
+        level_index = self.level_option.get().split(' ')[1]
+        file_index = self.input_option.get()
+        self.deliveryMap = DeliveryMap(self.root, f"input{file_index}_level{level_index}.txt")
+
+    def input_option_changed(self, *arg):
+        level_index = self.level_option.get().split(' ')[1]
+        file_index = self.input_option.get()
+        self.deliveryMap = DeliveryMap(self.root, f"input{file_index}_level{level_index}.txt")
 
     def create(self):
         schoolName = tk.Label(self.root, text="University of Science - VNU-HCM", font=("Times New Roman", 13))
@@ -106,12 +140,20 @@ class GUI:
         class_info.place(x = X_START - 35, y = Y_START + 110, anchor="nw")
         group_info.place(x = X_START - 35, y = Y_START + 140, anchor="nw")
 
-        level_info = tk.Label(self.root, text="Choose the level: ", font=("Times New Roman", 13))
+        level_info = tk.Label(self.root, text="Level: ", font=("Times New Roman", 13))
         level_info.place(x = X_START - 40, y = Y_START + 200, anchor="nw")
         
         self.level_option.set(self.level_option_list[0])
         self.level_menu = tk.OptionMenu(self.root, self.level_option, *self.level_option_list, command=self.level_option_changed)
-        self.level_menu.place(x = X_START + 120, y = Y_START + 200, anchor="nw") 
+        self.level_menu.place(x = X_START + 40, y = Y_START + 200, anchor="nw") 
+
+        input_file = tk.Label(self.root, text="Input: ", font=("Times New Roman", 13))
+        input_file.place(x = X_START + 200, y = Y_START + 200, anchor="nw")
+
+        self.input_option.set(self.input_option_list[0])
+        self.input_menu = tk.OptionMenu(self.root, self.input_option, *self.input_option_list, command=self.input_option_changed)
+        self.input_menu.place(x = X_START + 275, y = Y_START + 200, anchor="nw") 
+        self.widgets.append(self.input_menu)
 
         dfs_button = ttk.Radiobutton(self.root, text = "Depth-First Search", variable = self.algo_option, value = 1)
         dfs_button.place(x = X_START - 40, y = Y_START + 300, anchor="nw")
@@ -147,8 +189,6 @@ class GUI:
                             command = self.run
                             )
         button.place(x = X_START + 50, y = Y_START + 500, anchor="nw")
-
-        DeliveryMap(self.root, self.file)
 
         self.root.mainloop()
 
@@ -246,9 +286,17 @@ class DeliveryMap:
                     self.canvas.coords(self.ai_img, x2, y2)
                 self.pause(250)
 
-    def print_result(self, totalTime):
-        result = tk.Label(self.root, text=f"Total time: {totalTime}", font=("Times New Roman", 15, "bold"), foreground="red")
+    def print_result_lv1(self, totalCost):
+        result = tk.Label(self.root, text=f"Total Cost: {totalCost}", font=("Times New Roman", 15, "bold"), foreground="red")
         result.place(x = X_START + 350, y = Y_START + 512, anchor="nw")
+    def print_result_lv2(self, totalTime, totalCost):
+        result_time = tk.Label(self.root, text=f"Total time: {totalTime}", font=("Times New Roman", 15, "bold"), foreground="red")
+        result_time.place(x = X_START + 250, y = Y_START + 512, anchor="nw")
+
+        result = tk.Label(self.root, text=f"Total Cost: {totalCost}", font=("Times New Roman", 15, "bold"), foreground="red")
+        result.place(x = X_START + 425, y = Y_START + 512, anchor="nw")
+
+
 
 def readFile(filename):
     with open(filename, "r") as file:

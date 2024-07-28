@@ -27,6 +27,7 @@ class Algorithm:
         frontier = []
         frontier.append(start)
         visited[start] = True
+        totalCost = 0
 
         # Directions for moving in the maze (right, down, left, up)
         directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
@@ -47,14 +48,19 @@ class Algorithm:
                     if neighbor == goal:
                         path.append(neighbor)
                         while current != start:
+                            totalCost += 1
                             path.append(current)
                             current = tuple(come_from[current])
 
                         path.append(start)
+                        totalCost += 1
                         path.reverse()
 
                         # Draw path
                         self.ui_map.root.after(100, self.ui_map.draw_path(path))
+
+                        # Print result
+                        self.ui_map.print_result_lv1(totalCost)
                         return path
 
                     # add neighbor to frontier, visited cell and the path
@@ -76,6 +82,7 @@ class Algorithm:
         visited = set(start)
         parent = {start: None}
         path = []
+        totalCost = 0
 
         while frontier:
             current = frontier.pop()
@@ -87,10 +94,15 @@ class Algorithm:
                 while current is not None:
                     path.append(current)
                     current = parent[current]
+                    totalCost += 1
                 path.reverse()
 
                 # Draw path
                 self.ui_map.root.after(100, self.ui_map.draw_path(path))
+
+                # Print result
+                self.ui_map.print_result_lv1(totalCost - 1)
+
                 return path
 
             visited.add(current)     
@@ -120,15 +132,20 @@ class Algorithm:
         
         visited = set()
         frontier = PriorityQueue()
-        frontier.put((0,start,[start]))
+        totalCost = 0
+        frontier.put((0,start, totalCost, [start]))
         
         while not frontier.empty():
-            _, current, path=frontier.get()
+            _, current, totalCost, path=frontier.get()
 
             self.ui_map.color_cell(current, start, goal)
                        
             if current == goal:
                 self.ui_map.root.after(100, self.ui_map.draw_path(path))
+
+                # Print result
+                self.ui_map.print_result_lv1(totalCost)
+                
                 return path
             
             visited.add(current)
@@ -142,7 +159,7 @@ class Algorithm:
                     # Manhattan distance from neighbor to goal
                     heuristic = abs(int(neighbor[0]) - int(goal[0])) + abs(int(neighbor[1]) - int(goal[1]))
                     
-                    frontier.put((heuristic, neighbor, new_path))
+                    frontier.put((heuristic, neighbor, totalCost + 1, new_path))
                     visited.add(neighbor)
                     
         return []
@@ -163,6 +180,7 @@ class Algorithm:
         visited = np.zeros((rows, cols), dtype=bool)
         parent = np.full((rows, cols, 2), -1, dtype=int)
         path = []
+        totalCost = 0
 
         # Directions for moving in the maze (right, down, left, up)
         directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
@@ -186,11 +204,18 @@ class Algorithm:
                         while current != start:
                             path.append(current)
                             current = tuple(parent[current])
+                            totalCost += 1
+
                         path.append(start)
+                        totalCost += 1
                         path.reverse()
 
                         # Draw path
                         self.ui_map.root.after(100, self.ui_map.draw_path(path))
+
+                        # Print result
+                        self.ui_map.print_result_lv1(totalCost)
+
                         return path
             
                     frontier.put((current_cost + int(maze[neighbor]), neighbor))
@@ -212,6 +237,7 @@ class Algorithm:
         start = (start_location[0][0], start_location[1][0])
         goal = (goal_location[0][0], goal_location[1][0])
 
+        totalCost = 0
         frontier = []
         heapq.heappush(frontier, (0, start))
         came_from = {}
@@ -237,12 +263,18 @@ class Algorithm:
                         while current in came_from:
                             path.append(current)
                             current = came_from[current]
+                            totalCost += 1
                             
                         path.append(start)
+                        totalCost += 1
                         path.reverse()
 
                         # draw path
                         self.ui_map.root.after(100, self.ui_map.draw_path(path))
+
+                        # Print result
+                        self.ui_map.print_result_lv1(totalCost)
+
                         return path
                 
                     curr_cost = cost_to_get[current] + 1
@@ -278,11 +310,11 @@ class Algorithm:
         directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
         
         frontier = PriorityQueue()
-        frontier.put((0,start))
+        frontier.put((0, 0, start))
         visited[start] = True
         
         while frontier:
-            current_cost, current = frontier.get()
+            current_cost, current_step, current = frontier.get()
             for direction in directions:
                 neighbor = (current[0] + direction[0], current[1] + direction[1])
                 
@@ -294,6 +326,7 @@ class Algorithm:
 
                     if neighbor == goal:
                         totalTime = current_cost + 1
+                        totalCost = current_step + 1
                         if totalTime > t:
                             return path
                         
@@ -306,69 +339,13 @@ class Algorithm:
 
                         # Draw path
                         self.ui_map.root.after(100, self.ui_map.draw_path(path))
-                        self.ui_map.print_result(totalTime)
+                        self.ui_map.print_result_lv2(totalTime, totalCost)
                         return path
 
-                    frontier.put((current_cost + int(maze[neighbor]) + 1, neighbor))
+                    frontier.put((current_cost + int(maze[neighbor]) + 1, current_step + 1 , neighbor))
                     visited[neighbor] = True
                     parent[neighbor] = current
         
-        return path
-    
-    def a_star_level2(self, t) -> list:
-        maze = self.ui_map.map
-        rows, cols = maze.shape     # size of the maze
-
-        # get index of start and goal
-        start_location = np.where(maze == 'S')
-        goal_location = np.where(maze == 'G')
-        start = (start_location[0][0], start_location[1][0])
-        goal = (goal_location[0][0], goal_location[1][0])
-        
-        frontier = []
-        heapq.heappush(frontier, (0, start))
-        came_from = {}
-        cost_to_get = {start: 0}
-
-        # Directions for moving in the maze (right, down, left, up)
-        directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
-        path = []
-
-        while frontier:
-            current = heapq.heappop(frontier)[1]    # get the cell that has the smallest heuristic value
-            # check all neighbor (up, down, left, right)
-            for direction in directions:
-                neighbor = (current[0] + direction[0], current[1] + direction[1])
-
-                # the neighbor must be in the maze and is not an obstacle
-                if 0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols and not maze[neighbor] in {'-1', 'S'}:
-                    # color the neighbor 
-                    self.ui_map.color_cell(neighbor, start, goal)
-
-                    if neighbor == goal:
-                        current_cost = cost_to_get[current] + 1
-                        if current_cost <= t:
-                            path.append(neighbor)
-                            while current in came_from:
-                                path.append(current)
-                                current = came_from[current]
-                                
-                            path.append(start)
-                            path.reverse()
-
-                            # draw path
-                            self.ui_map.root.after(100, self.ui_map.draw_path(path))
-                            return path
-                
-                    curr_cost = cost_to_get[current] + int(maze[neighbor]) + 1
-                    # if neighbor is not in the frontier or the current cost smaller than the existed cost
-                    if neighbor not in cost_to_get or curr_cost < cost_to_get[neighbor]:
-                        came_from[neighbor] = current
-                        cost_to_get[neighbor] = curr_cost
-                        f_cost = curr_cost + self.heuristic(neighbor, goal)
-                        print(f_cost - self.heuristic(neighbor, goal), self.heuristic(neighbor, goal))
-                        heapq.heappush(frontier, (f_cost, neighbor))
-
         return []
     
     # ================================ LEVEL 3 ================================
