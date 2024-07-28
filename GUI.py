@@ -26,6 +26,7 @@ class GUI:
         self.file = "input1_level1.txt"
         self.deliveryMap = DeliveryMap(self.root, self.file)
         self.root.img = tk.PhotoImage(file="robot.png")
+        self.root.result = []
 
     def run(self):
         level_option, algo_option = self.level_option.get(), self.algo_option.get()
@@ -36,7 +37,7 @@ class GUI:
             path.append(algorithm.dfs_level1())
             algo_name.append("DFS")
 
-            self.deliveryMap.create_map()
+            # self.deliveryMap.create_map()
 
             path.append(algorithm.bfs_level1())
             algo_name.append("BFS")
@@ -46,113 +47,90 @@ class GUI:
             path.append(algorithm.ucs_level1())
             algo_name.append("UCS")
 
-            self.deliveryMap.create_map()
 
             path.append(algorithm.gbfs_level1())
             algo_name.append("GBFS")
 
-            self.deliveryMap.create_map()
 
             path.append(algorithm.a_star_level1())
             algo_name.append("A*")
-            self.deliveryMap.create_map()
 
         elif level_option == "Level 1" and algo_option == 2:
             path.append(algorithm.bfs_level1())
             algo_name.append("BFS")
 
-            self.deliveryMap.create_map()
 
             path.append(algorithm.dfs_level1())
             algo_name.append("DFS")
 
-            self.deliveryMap.create_map()
 
             path.append(algorithm.ucs_level1())
             algo_name.append("UCS")
 
-            self.deliveryMap.create_map()
 
             path.append(algorithm.gbfs_level1())
             algo_name.append("GBFS")
 
-            self.deliveryMap.create_map()
 
             path.append(algorithm.a_star_level1())
             algo_name.append("A*")
-            self.deliveryMap.create_map()
         elif level_option == "Level 1" and algo_option == 3:
             path.append(algorithm.ucs_level1())
             algo_name.append("UCS")
 
-            self.deliveryMap.create_map()
 
             path.append(algorithm.dfs_level1())
             algo_name.append("DFS")
 
-            self.deliveryMap.create_map()
 
             path.append(algorithm.bfs_level1())
             algo_name.append("BFS") 
 
-            self.deliveryMap.create_map()  
                     
             path.append(algorithm.gbfs_level1())
             algo_name.append("GBFS")
 
-            self.deliveryMap.create_map()
 
             path.append(algorithm.a_star_level1())
             algo_name.append("A*") 
-            self.deliveryMap.create_map()
         elif level_option == "Level 1" and algo_option == 4:
             path.append(algorithm.gbfs_level1())
             algo_name.append("GBFS")
 
-            self.deliveryMap.create_map()
 
             path.append(algorithm.dfs_level1())
             algo_name.append("DFS") 
 
-            self.deliveryMap.create_map() 
 
             path.append(algorithm.bfs_level1())
             algo_name.append("BFS")
 
-            self.deliveryMap.create_map()
 
             path.append(algorithm.ucs_level1())
             algo_name.append("UCS")
 
-            self.deliveryMap.create_map()
 
             path.append(algorithm.a_star_level1())
             algo_name.append("A*")
-            self.deliveryMap.create_map()
         elif level_option == "Level 1" and algo_option == 5:
             path.append(algorithm.a_star_level1())
             algo_name.append("A*")
 
-            self.deliveryMap.create_map()
 
             path.append(algorithm.dfs_level1())
             algo_name.append("DFS")
 
-            self.deliveryMap.create_map()
 
             path.append(algorithm.bfs_level1())
             algo_name.append("BFS")
 
-            self.deliveryMap.create_map()
 
             path.append(algorithm.ucs_level1())
             algo_name.append("UCS")
 
-            self.deliveryMap.create_map()
 
             path.append(algorithm.gbfs_level1())
             algo_name.append("GBFS")
-            self.deliveryMap.create_map()
         # Level 2
         elif level_option == "Level 2" and algo_option == 3:
             path.append(algorithm.ucs_level2(self.deliveryMap.t))
@@ -173,6 +151,10 @@ class GUI:
         for widget in self.widgets:
             widget.place_forget()
         self.widgets.clear()
+
+        for res in self.root.result:
+            res.place_forget()
+        self.root.result.clear()
 
         if self.level_option.get() == "Level 1":
             dfs_button = ttk.Radiobutton(self.root, text = "Depth-First Search", variable = self.algo_option, value = 1)
@@ -236,6 +218,10 @@ class GUI:
         self.deliveryMap = DeliveryMap(self.root, self.file)
 
     def input_option_changed(self, *arg):
+        for res in self.root.result:
+            res.place_forget()
+        self.root.result.clear()
+
         level_index = self.level_option.get().split(' ')[1]
         file_index = self.input_option.get()
         self.file = f"input{file_index}_level{level_index}.txt"
@@ -313,6 +299,7 @@ class DeliveryMap:
         self.root = root
         self.canvas = tk.Canvas(root, width = MAP_WIDTH, height = MAP_HEIGHT)
         self.map, self.t, self.f = readFile(filename=file)
+        self.result = []
 
         # Calculate to center the delivery map
         self.cell_size = 40
@@ -403,28 +390,44 @@ class DeliveryMap:
                 self.pause(250)
 
     def print_result_lv1(self, totalCost):
+        for res in self.root.result:
+            res.place_forget()
+        self.root.result.clear()
         result = tk.Label(self.root, text=f"Total Cost: {totalCost}", font=("Times New Roman", 15, "bold"), foreground="red")
         result.place(x = X_START + 350, y = Y_START + 512, anchor="nw")
-        self.pause(500)
-        result.place_forget()
+        self.root.result.append(result)
 
     def print_result_lv2(self, totalTime, totalCost):
+        for res in self.root.result:
+            res.place_forget()
+        self.root.result.clear()
+
         result_time = tk.Label(self.root, text=f"Total time: {totalTime}", font=("Times New Roman", 15, "bold"), foreground="red")
         result_time.place(x = X_START + 250, y = Y_START + 512, anchor="nw")
+        self.root.result.append(result_time)
         result = tk.Label(self.root, text=f"Total Cost: {totalCost}", font=("Times New Roman", 15, "bold"), foreground="red")
         result.place(x = X_START + 425, y = Y_START + 512, anchor="nw")
+        self.root.result.append(result)
 
     def print_result_lv3(self, totalTime, totalCost):
+        for res in self.root.result:
+            res.place_forget()
+        self.root.result.clear()
+        
         result_time = tk.Label(self.root, text=f"Total time: {totalTime}", font=("Times New Roman", 15, "bold"), foreground="red")
         result_time.place(x = X_START + 250, y = Y_START + 512, anchor="nw")
+        self.root.result.append(result_time)
         result = tk.Label(self.root, text=f"Total Cost: {totalCost}", font=("Times New Roman", 15, "bold"), foreground="red")
         result.place(x = X_START + 425, y = Y_START + 512, anchor="nw")
+        self.root.result.append(result)
 
-    def print_no_path(self):
+    def print_no_path(self, lv):
+        for res in self.root.result:
+            res.place_forget()
+        self.root.result.clear()
         result = tk.Label(self.root, text="No path exists", font=("Times New Roman", 15, "bold"), foreground="red")
         result.place(x = X_START + 300, y = Y_START + 512, anchor="nw")
-        self.pause(700)
-        result.place_forget()
+        self.root.result.append(result)
 
 def readFile(filename):
     with open(filename, "r") as file:

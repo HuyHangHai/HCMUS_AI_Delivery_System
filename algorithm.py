@@ -7,6 +7,7 @@ class Algorithm:
         self.ui_map = deliveryMap
 
     def bfs_level1(self) -> list:  
+        self.ui_map.create_map()
         maze = self.ui_map.map
         rows, cols = maze.shape     # size of the maze
 
@@ -70,10 +71,11 @@ class Algorithm:
                     visited[neighbor] = True
                     come_from[neighbor] = current
             
-        self.ui_map.print_no_path()
+        self.ui_map.print_no_path(1)
         return path
     
     def dfs_level1(self) -> list:
+        self.ui_map.create_map()
         maze = self.ui_map.map
         start_location = np.where(maze == 'S')
         goal_location = np.where(maze == 'G')
@@ -124,10 +126,11 @@ class Algorithm:
                     frontier.append(neighbor)
                     parent[neighbor] = current        
 
-        self.ui_map.print_no_path()
+        self.ui_map.print_no_path(1)
         return path
     
     def gbfs_level1(self) -> list:
+        self.ui_map.create_map()
         maze = self.ui_map.map
         start_location = np.where(maze == 'S')
         goal_location = np.where(maze == 'G')
@@ -167,11 +170,12 @@ class Algorithm:
                     frontier.put((heuristic, neighbor, totalCost + 1, new_path))
                     visited.add(neighbor)
 
-        self.ui_map.print_no_path()            
+        self.ui_map.print_no_path(1)            
         return []
 
         
     def ucs_level1(self)->list:
+        self.ui_map.create_map()
         maze = self.ui_map.map
         start_location = np.where(maze == 'S')
         goal_location = np.where(maze == 'G')
@@ -228,13 +232,14 @@ class Algorithm:
                     visited[neighbor] = True
                     parent[neighbor] = current
 
-        self.ui_map.print_no_path()            
+        self.ui_map.print_no_path(1)            
         return path
     
     def heuristic(self, a, b):
             return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
     def a_star_level1(self) -> list:
+        self.ui_map.create_map()
         maze = self.ui_map.map
         rows, cols = maze.shape     # size of the maze
 
@@ -292,7 +297,7 @@ class Algorithm:
                         f_cost = curr_cost + self.heuristic(neighbor, goal)
                         heapq.heappush(frontier, (f_cost, neighbor))
 
-        self.ui_map.print_no_path()
+        self.ui_map.print_no_path(1)
         return path
     
     # ================================ LEVEL 2 ================================
@@ -336,7 +341,7 @@ class Algorithm:
                         totalTime = current_cost + 1
                         totalCost = current_step + 1
                         if totalTime > t:
-                            self.ui_map.print_no_path()
+                            self.ui_map.print_no_path(2)
                             return []
                         
                         path.append(neighbor)
@@ -355,7 +360,7 @@ class Algorithm:
                     visited[neighbor] = True
                     parent[neighbor] = current
         
-        self.ui_map.print_no_path()
+        self.ui_map.print_no_path(2)
         return []
     
     # ================================ LEVEL 3 ================================
@@ -445,7 +450,7 @@ class Algorithm:
                         fuel_to_get[neighbor] = curr_fuel
                         f_cost = curr_time + self.heuristic(neighbor, goal)
                         heapq.heappush(frontier, (f_cost, neighbor))
-        return None, 0, 0
+        return [], 0, 0
 
     def search_level3(self, max_time, max_fuel, start=None, goal=None, fuel_station_indices=None) -> list:
         maze = self.ui_map.map
@@ -502,10 +507,11 @@ class Algorithm:
                     self.ui_map.print_result_lv3(totalTime, totalCost)
                     
                     return result_path, totalCost, totalTime
-            return None, 0, 0
+            self.ui_map.print_no_path(3)
+            return [], 0, 0
         
-        self.ui_map.print_no_path()
-        return None, 0, 0
+        self.ui_map.print_no_path(3)
+        return [], 0, 0
     
     # ========== LEVEL 4 ==========
     def find_start_goal_pairs(self, maze):
@@ -640,5 +646,5 @@ class Algorithm:
             self.ui_map.root.after(100, self.ui_map.draw_path(path_result))
             return path_result
         else: 
-            self.ui_map.print_no_path()
+            self.ui_map.print_no_path(4)
             return None
