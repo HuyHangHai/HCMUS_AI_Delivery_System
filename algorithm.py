@@ -453,54 +453,50 @@ class Algorithm:
                         heapq.heappush(frontier, (f_cost, neighbor))
         return None
 
-    def search_level3(self, max_time, max_fuel) -> list:
+    def search_level3(self, max_time, max_fuel, start=None, goal=None, fuel_station_indices=None) -> list:
         maze = self.ui_map.map
 
         # get the index of start and goal
-        start_location = np.where(maze == 'S')
-        goal_location = np.where(maze == 'G')
-        start = (start_location[0][0], start_location[1][0])
-        goal = (goal_location[0][0], goal_location[1][0])
+        if start is None and goal is None:
+            start_location = np.where(maze == 'S')
+            goal_location = np.where(maze == 'G')
+            start = (start_location[0][0], start_location[1][0])
+            goal = (goal_location[0][0], goal_location[1][0])
 
         path = self.a_star_level3(start, goal, max_time, max_fuel)
         # if time and fuel is enough to get to the goal
-        if path != -1:
+        if not path or path != -1:
             self.ui_map.root.after(100, self.ui_map.draw_path(path))
             return path
 
         # else find the indices of all fuel_station in the maze
-        mask = np.char.startswith(maze.tolist(), 'F')
-        rows = np.where(mask)[0]
-        cols = np.where(mask)[1]
+        if fuel_station_indices is None:
+            mask = np.char.startswith(maze.tolist(), 'F')
+            rows = np.where(mask)[0]
+            cols = np.where(mask)[1]
+
+            # sort the fuel_station's indices in the descending order of the heuristic value from start to that fuel_station
+            fuel_station_indices = sorted(list(zip(rows, cols)), key=lambda x: self.heuristic(x, goal))
+        else:
+            fuel_station_indices.pop(0)
 
         # Generate again map
         self.ui_map.create_map()
 
-        # sort the fuel_station's indices in the descending order of the heuristic value from start to that fuel_station
-        fuel_station_indices = sorted(list(zip(rows, cols)), key=lambda x: self.heuristic(x, goal))
-
         # for each fuel_station
         for fuel_station in fuel_station_indices:
-            cost_to_get = {start: 0}
-            time_to_get = {start: 0}
-            fuel_to_get = {start: 0}
 
-            # find the path from start to that
-            first_path = self.a_star_level3(start, fuel_station, max_time, max_fuel, cost_to_get, time_to_get, fuel_to_get)
-
-            # if the path from start to that fuel_station exists
+            # find the path from the closest fuel station to 'goal'
+            first_path = self.a_star_level3(fuel_station, goal, max_time, max_fuel)
             if first_path and first_path != -1:
-                # find the path from that fuel_station to goal
-                second_path = self.a_star_level3(fuel_station, goal, max_time, max_fuel, cost_to_get, time_to_get, fuel_to_get)
-                # if the path exist, return return the result path
+                # find the path from 'start' to that fuel station
+                second_path = self.search_level3(max_time, max_fuel, start, fuel_station, fuel_station_indices)
+                # if 2 paths exist, add together and return the final path
                 if second_path and second_path != -1:
-                    result_path = first_path + second_path
-                    self.ui_map.root.after(100, self.ui_map.draw_path(result_path))
+                    result_path = second_path + first_path
+                    self.ui_map.root.after(100, self.ui_map.draw_path(result_path)) 
                     return result_path
-                
-            # else move to next fuel_station
-            continue
-
+            return None
         return None
     
     # ========== LEVEL 4 ==========
