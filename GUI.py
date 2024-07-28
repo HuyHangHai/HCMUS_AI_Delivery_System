@@ -40,7 +40,8 @@ class GUI:
             path = algorithm.a_star_level1()
         # Level 2
         elif level_option == "Level 2" and algo_option == 3:
-            path = algorithm.ucs_level2(deliveryMap.t)
+            path = algorithm.a_star_level2(deliveryMap.t)
+            # print(path)
         # Level 3
         elif level_option == "Level 3" and algo_option == 5:
             path = algorithm.search_level3(deliveryMap.t, deliveryMap.f)
