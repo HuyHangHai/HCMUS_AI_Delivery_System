@@ -29,7 +29,6 @@ class GUI:
 
     def run(self):
         level_option, algo_option = self.level_option.get(), self.algo_option.get()
-        # deliveryMap = DeliveryMap(self.root, self.file)
         algorithm = Algorithm(self.deliveryMap)
 
         if level_option == "Level 1" and algo_option == 1:
