@@ -46,7 +46,7 @@ class GUI:
             path = algorithm.ucs_level2(self.deliveryMap.t)
         # Level 3
         elif level_option == "Level 3" and algo_option == 5:
-            path = algorithm.search_level3(self.deliveryMap.t, self.deliveryMap.f)
+            path, _, _ = algorithm.search_level3(self.deliveryMap.t, self.deliveryMap.f)
         #Level 4
         elif level_option == "Level 4" and algo_option == 5:
             path = algorithm.search_level4(self.deliveryMap.t, self.deliveryMap.f)
@@ -288,14 +288,18 @@ class DeliveryMap:
     def print_result_lv1(self, totalCost):
         result = tk.Label(self.root, text=f"Total Cost: {totalCost}", font=("Times New Roman", 15, "bold"), foreground="red")
         result.place(x = X_START + 350, y = Y_START + 512, anchor="nw")
+
     def print_result_lv2(self, totalTime, totalCost):
         result_time = tk.Label(self.root, text=f"Total time: {totalTime}", font=("Times New Roman", 15, "bold"), foreground="red")
         result_time.place(x = X_START + 250, y = Y_START + 512, anchor="nw")
-
         result = tk.Label(self.root, text=f"Total Cost: {totalCost}", font=("Times New Roman", 15, "bold"), foreground="red")
         result.place(x = X_START + 425, y = Y_START + 512, anchor="nw")
 
-
+    def print_result_lv3(self, totalTime, totalCost):
+        result_time = tk.Label(self.root, text=f"Total time: {totalTime}", font=("Times New Roman", 15, "bold"), foreground="red")
+        result_time.place(x = X_START + 250, y = Y_START + 512, anchor="nw")
+        result = tk.Label(self.root, text=f"Total Cost: {totalCost}", font=("Times New Roman", 15, "bold"), foreground="red")
+        result.place(x = X_START + 425, y = Y_START + 512, anchor="nw")
 
 def readFile(filename):
     with open(filename, "r") as file:
@@ -314,7 +318,7 @@ def writeResultPath(inputFilename, path):
     level = filename[1][5]
     outputFilename = "output" + input + "_level" + level + ".txt"
     with open(outputFilename, 'w') as file:
-        if len(path) == 0:
+        if len(path) == 0 or path is None:
             file.write('No path found!')
         else:
             file.write(' '.join(map(str, path)))
